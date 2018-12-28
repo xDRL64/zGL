@@ -1,0 +1,203 @@
+<meta charset="utf-8">
+<script src="utah-teapot.3D.js"></script>
+
+<script src="zMath.js"></script>
+<script src="zGeometry.js"></script>
+<script src="zFBX.js"></script>
+<script src="zLoader.js"></script>
+<script src="zImporter.js"></script>
+<script src="zGLSL.js"></script>
+<script src="zGL.js"></script>
+
+<canvas id="mycanvas" width="400px" height="300px"> webGL ne fonctionne pas</canvas>
+
+<script type="text/javascript">
+
+var process = function(){
+	// INIT WebGL
+	//
+	mycanvas = document.getElementById('mycanvas');
+    var wgl = mycanvas.getContext('webgl');
+    
+    //zGL.init(wgl);
+    zGL.context(wgl);
+
+	wgl.clearColor(1,0,0,1);
+	wgl.enable(wgl.DEPTH_TEST);
+	wgl.depthFunc(wgl.LEQUAL);
+	wgl.clear(wgl.COLOR_BUFFER_BIT || wgl.DEPTH_BUFFER_BIT);
+
+	// INIT 3D object
+	//
+/*
+	// créer le tableau qui contient les vertices
+    // .0
+    // .2    .1
+	vData = [
+		-2., 1.0, -1.,
+		2.0, -1., -1.,
+		-2., -1., -1.,
+    ];
+    var vBuffer = zGL.buffer_f32A(vData);
+	// créer le tableau qui contient les uvCoords
+    // .0
+    // .2    .1
+    var uData = [
+        0.0, 1.0,
+        1.0, 0.0,
+        0.0, 0.0,
+    ];
+    var uBuffer = zGL.buffer_f32A(uData);
+	//FACES :
+    var tData = [0,1,2];
+    var tBuffer= zGL.buffer_ui16A(tData);
+*/
+
+/*
+var utahTeapot = zLoader.data.myJson.geometries[0].data;
+var vData = utahTeapot.vertices;
+var vBuffer = zGL.buffer_f32A(vData);
+var uData = utahTeapot.uvs[0];
+var uBuffer = zGL.buffer_f32A(uData);
+tData = zGL.removeSomeIndices(utahTeapot.faces, 1036+1);
+//tData = utahTeapot.faces;
+var tBuffer= zGL.buffer_ui16A(tData);
+*/
+
+
+
+// 0,1,2,0,2,5,6,7,8,6,8,11,12,13,14,12,14,17,18,19,8,18,8,23,24,25,26,24,26,29,6,31,32,6,32,35
+// 3,4,9,30,33,10,20,22,15,16,21,27,28,34
+
+/*
+var vData = [1,1,-1,1,-1,-1,-1,-1,-1,1,1,-1,-1,-1,-1,-1,1,-1,1,0.999999,1,-1,1,1,
+-1,-1,1,1,0.999999,1,-1,-1,1,0.999999,-1.000001,1,1,1,-1,1,0.999999,
+1,0.999999,-1.000001,1,1,1,-1,0.999999,-1.000001,1,1,-1,-1,1,-1,-1,
+0.999999,-1.000001,1,-1,-1,1,1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,
+-1,1,-1,1,1,-1,-1,-1,-1,1,1,-1,1,-1,1,0.999999,1,1,1,-1,-1,1,-1,1,
+0.999999,1,-1,1,-1,-1,1,1];*/
+
+
+/*var vData = [1,1,-1,1,-1,-1,-1,-1,-1,-1,1,-1,1,0.999999,1,-1,1,1,-1,-1,1,0.999999,
+-1.000001,1,1,1,-1,1,0.999999,1,0.999999,-1.000001,1,1,-1,-1,1,-1,-1,
+0.999999,-1.000001,1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,1,1,-1,1,-1,1,1,-1,
+-1,1,-1,-1,1,1];*/
+var vBuffer = zGL.buffer_f32A(vData);
+
+/*
+var uData = [0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,
+0,1,1,0,0,1,1,0,1,0,0,1,0,
+1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,
+1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1];
+*/
+
+
+
+var nBuffer = zGL.buffer_f32A(nData);
+
+
+
+/*var uData = [0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,
+1,0,0,1,0,0,1,0,0,1,0,1,1,0,1,1,0,1,1,0,1];*/
+var uBuffer = zGL.buffer_f32A(uData);
+
+/*
+tData = [0,1,2,0,2,5,6,7,8,6,8,11,12,13,14,12,14,
+17,18,19,8,18,8,23,24,25,26,24,26,29,6,31,32,6,32,35];*/
+//tData = [0,1,2,0,2,3,4,5,6,4,6,8,9,9,10,9,10,13,14,14,6,14,6,17,17,18,19,17,19,20,4,22,23,4,23,25];
+
+
+//var tData = [0,1,2,0,2,3,4,5,6,4,6,7,8,9,10,8,10,11,12,13,6,12,6,14,15,16,17,15,17,18,4,19,20,4,20,21];
+var tBuffer= zGL.buffer_ui16A(tData);
+
+
+	// INIT 3D matrix
+	//
+	canvasAspect = mycanvas.width / mycanvas.height;
+
+	projectionMatrix = zMath.ColMat_proj(90, canvasAspect, 0.001, 1000);
+	modelviewMatrix = zMath.mat_id();
+
+
+	// INIT texture
+    //
+    var texSettings = zGL.texSettings({mipmap:false});
+    var tex2D = zGL.tex_2D(zLoader.data.myImage, texSettings);
+    //var tex2D = zGL.tex_2D("./TEX64.png");
+
+/*
+	// INIT Shaders
+    //
+    var shader = zGLSL.texture();
+    // compile
+    var vBin = zGL.vBuild(shader.vertex);
+    var fBin = zGL.fBuild(shader.fragment);
+	// crée le programme de shader
+	var sProg = zGL.shader(vBin,fBin);
+    // obtient le numero de l'attribute dans le code de vertex shader
+    var attribs = zGL.attributes(sProg, ["aVertexPosition","aTextureCoord"]);
+    // obtient les numero des uniform dans le code de vertex shader
+    var uniforms = zGL.uniforms(sProg, ["uMVMatrix","uPMatrix","uSampler","oneFloat"]);
+*/
+
+
+
+
+	// INIT Shaders
+    //
+    var shader = zGLSL.texSmoothLighting();
+    //var shader = zGLSL.texGouraud();
+    // compile
+    var vBin = zGL.vBuild(shader.vertex);
+    var fBin = zGL.fBuild(shader.fragment);
+	// crée le programme de shader
+	var sProg = zGL.shader(vBin,fBin);
+    // obtient le numero de l'attribute dans le code de vertex shader
+    var attribs = zGL.attributes(sProg, ["aVertexPosition","aNormalDirection","aTextureCoord"]);
+    // obtient les numero des uniform dans le code de vertex shader
+    var uniforms = zGL.uniforms(sProg, ["uMVMatrix","uPMatrix","uSampler","oneFloat"]);
+
+
+
+
+
+
+    var verticesPair = new zGL.ShaderPair(attribs["aVertexPosition"],  vBuffer);
+    var normalsPair  = new zGL.ShaderPair(attribs["aNormalDirection"], nBuffer);
+    var uvCoordsPair = new zGL.ShaderPair(attribs["aTextureCoord"],    uBuffer);
+    var modelMatPair = new zGL.ShaderPair(uniforms["uMVMatrix"],       modelviewMatrix);
+    var projMatPair  = new zGL.ShaderPair(uniforms["uPMatrix"],        projectionMatrix);
+    var oneFloatPair = new zGL.ShaderPair(uniforms["oneFloat"],        1.0);
+    var texturePair  = new zGL.ShaderPair(uniforms["uSampler"],        tex2D);
+
+    var shaderStarter = zGL.shaderStarter({
+        prog  : sProg,
+        VERT  : [verticesPair],
+        NORM  : [normalsPair],
+        UV    : [uvCoordsPair],
+        MAT4  : [modelMatPair,projMatPair],
+        FLOAT : [oneFloatPair],
+        TEX   : [texturePair]
+    });
+
+    zGL.start_shader(shaderStarter);
+
+
+    /*
+    wgl.enable(wgl.CULL_FACE);
+    wgl.cullFace(wgl.BACK);
+    wgl.frontFace(wgl.CW);
+    */
+   zGL.draw_triangles(tBuffer);
+};
+
+
+zLoader.addToLoading("myImage","img","./TEX64.png");
+zLoader.addToLoading("myJson","json","./utah-teapot-threejs/utah-teapot.json");
+//zLoader.addToLoading("myFbx", "any", "./cubesSmoothColorUV.fbx");
+zLoader.addToLoading("myFbx", "any", "./utah-teapot.fbx");
+zLoader.callback = process;
+zLoader.load();
+
+
+</script>
