@@ -130,45 +130,13 @@ var ZGL = (function(){
 
 })();
 
-ZGL.ext.loaderr = function(){this.a=1, this.b=2};
-ZGL.ext.loaderr2 = {a:3,b:4};
-ZGL.ext.loaderr3 = function(){};
-
-var vbo = function(data){
-    var vBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
-    return vBuffer;
-};
-
-ZGL.lib.vbo = function(data){
-    var vBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
-    return vBuffer;
-};
-
-ZGL.lib.vbo2 = function(data){
-	var my = 0;
-	
-    console.log("zgl : ", zgl);
-    console.log("gl : ", gl);
-    console.log("this : ", this);
-    console.log("_lib : ", _lib);
-};
+// ZGL.ext.propNameOfTheExtension = extension (function or object)
+// ZGL.ext.exemple = function(){this.a=1, this.b=2}; // créer une instance
+// ZGL.ext.exemple = {a:3,b:4}; // copie la reference de l'objet
 
 
-ZGL.lib.ggg = (function(){});
-ZGL.lib.fff = ZGL.lib.vbo;
-ZGL.lib.ffsf = vbo;
+// ZGL.lib.functionName = functionObject
+// ZGL.lib.exemple = function(){ console.log('cette methode de zGL a besoin de : ', gl) };
 
 
-var fff = function(A, B){
-	console.log(arguments);
 
-	var viewport = document.getElementById('vi');
-
-	console.log("test : ", viewport instanceof HTMLCanvasElement);
-
-	
-};
