@@ -112,7 +112,7 @@ var ZGL = (function(){
 				for(let extName in _ext){
 					let ext = _ext[extName];
 					if(typeof ext === 'function')
-						this[extName] = new ext();
+						this[extName] = new ext(this);
 					else
 						this[extName] = ext;
 				}
