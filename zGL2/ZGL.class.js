@@ -2,7 +2,7 @@ var ZGL = (function(){
 
 
 	// METHODES OF ZGL NEEDS PRIVATE AND EMPTY SCOPE
-	this.ZGL = {
+	this.PROTECTED_SCOPE = {
 
 		set_libScope : function( /* DON'T PASS ARGS BECAUSE THEY WILL STAY IN THE SCOPE */ ){
 
@@ -36,7 +36,9 @@ var ZGL = (function(){
 	// PARENT SCOPE OF ZGL
 	return (function(){
 
-		var classMethods = this.ZGL;
+		//var classMethods = this.PROTECTED_SCOPE;
+		var set_libScope = this.PROTECTED_SCOPE.set_libScope;
+		delete this.PROTECTED_SCOPE;
 
 		var _lib = {};
 		var _ext = {};
@@ -121,26 +123,15 @@ var ZGL = (function(){
 			this.libScopeSettings = make_scopeLibSettings(libScope);
 
 			// INTI LIB SCOPE
-			this.set_libScope = classMethods.set_libScope;
-			this.set_libScope();
-			delete this.set_libScope;
+			//this.set_libScope = classMethods.set_libScope;
+			//this.set_libScope();
+			set_libScope.call(this);
+			//delete this.set_libScope;
 			delete this.libScopeSettings;
 
 			// INJECT EXTENSIONS
-			//let extNameList = [];
-			/* this.inject_extensions = function(){
-				for(let extName in _ext){
-					let ext = _ext[extName];
-					if(typeof ext === 'function')
-						this[extName] = new ext(this);
-					else
-						this[extName] = ext;
-					extNameList.push(extName);
-				}
-			}; */
-			//this.inject_extensions();
 			let extNameList = inject_extensions.call(this);
-			//delete this.inject_extensions;
+
 
 			// todo : execute init of each extension
 
