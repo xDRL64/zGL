@@ -1,7 +1,7 @@
 var ZGL = (function(){
 
 
-	// METHODES OF ZGL NEED PRIVATE AND EMPTY SCOPE
+	// METHODES OF ZGL NEEDS PRIVATE AND EMPTY SCOPE
 	this.ZGL = {
 
 		set_libScope : function(){
@@ -67,6 +67,20 @@ var ZGL = (function(){
 				this.contextType = 'webgl';
 		};
 
+		var make_scopeLibSettings = function(libScope){
+			let methods = [];
+			for(let method in _lib){
+				methods.push({
+					name : method,
+					code : _lib[method].toSource()
+				});
+			}
+			return {
+				methods : methods,
+				scope   : libScope,
+			};
+		};
+
 		// ZGL CLASS
 		/**
 		 * @param canvas  : ('elem':HTMLCanvasElement || 'cssID':string)
@@ -84,30 +98,20 @@ var ZGL = (function(){
 			this.gl = gl;
 		
 			// LIB SCOPE SETTINGS
-			this.libScopeSettings = null;
-			this.make_scopeLibSettings = function(){
-				let methods = [];
-				for(let method in _lib){
-					methods.push({
-						name : method,
-						code : _lib[method].toSource()
-					});
-				}
-				this.libScopeSettings = {
-					methods : methods,
-					scope : {
-						gl : gl,
-						zgl : this,
-					},
-				};
-			};
-			this.make_scopeLibSettings();
+			let libScope = {
+				gl  : gl,
+				zgl : this,
+			}
+			this.libScopeSettings = make_scopeLibSettings(libScope);
 
 			// INTI LIB SCOPE
 			this.set_libScope = classMethods.set_libScope;
 			this.set_libScope();
+			delete this.set_libScope;
+			delete this.libScopeSettings;
 
 			// INJECT EXTENSIONS
+			let extNameList = [];
 			this.inject_extensions = function(){
 				for(let extName in _ext){
 					let ext = _ext[extName];
@@ -115,10 +119,14 @@ var ZGL = (function(){
 						this[extName] = new ext(this);
 					else
 						this[extName] = ext;
+					extNameList.push(extName);
 				}
 			};
 			this.inject_extensions();
-			
+			delete this.inject_extensions;
+
+			// todo : execute init of each extension
+
 		};
 	
 		ZGL.lib = _lib;
