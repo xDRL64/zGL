@@ -4,7 +4,7 @@ var ZGL = (function(){
 	// METHODES OF ZGL NEEDS PRIVATE AND EMPTY SCOPE
 	this.ZGL = {
 
-		set_libScope : function(){
+		set_libScope : function( /* DON'T PASS ARGS BECAUSE THEY WILL STAY IN THE SCOPE */ ){
 
 			// TEMP RAM
 			this.LSS = this.libScopeSettings;
@@ -29,6 +29,7 @@ var ZGL = (function(){
 			delete this.TMP;
 		},
 
+		
 	};
 
 
@@ -81,6 +82,19 @@ var ZGL = (function(){
 			};
 		};
 
+		var inject_extensions = function(){
+			var extNameList = [];
+			for(let extName in _ext){
+				let ext = _ext[extName];
+				if(typeof ext === 'function')
+					this[extName] = new ext(this);
+				else
+					this[extName] = ext;
+				extNameList.push(extName);
+			}
+			return extNameList;
+		};
+
 		// ZGL CLASS
 		/**
 		 * @param canvas  : ('elem':HTMLCanvasElement || 'cssID':string)
@@ -102,6 +116,8 @@ var ZGL = (function(){
 				gl  : gl,
 				zgl : this,
 			}
+			// KEEP 'libScopeSettings' in 'this' until 'set_libScope' using
+			// BECAUSE 'set_libScope' must take no arguments
 			this.libScopeSettings = make_scopeLibSettings(libScope);
 
 			// INTI LIB SCOPE
@@ -111,8 +127,8 @@ var ZGL = (function(){
 			delete this.libScopeSettings;
 
 			// INJECT EXTENSIONS
-			let extNameList = [];
-			this.inject_extensions = function(){
+			//let extNameList = [];
+			/* this.inject_extensions = function(){
 				for(let extName in _ext){
 					let ext = _ext[extName];
 					if(typeof ext === 'function')
@@ -121,9 +137,10 @@ var ZGL = (function(){
 						this[extName] = ext;
 					extNameList.push(extName);
 				}
-			};
-			this.inject_extensions();
-			delete this.inject_extensions;
+			}; */
+			//this.inject_extensions();
+			let extNameList = inject_extensions.call(this);
+			//delete this.inject_extensions;
 
 			// todo : execute init of each extension
 
