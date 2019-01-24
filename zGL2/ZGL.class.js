@@ -39,18 +39,66 @@ var ZGL = (function(){
 			}
 		},
 
-		
+		inject_extensions : function(){
+			var extNameList = [];
+			// INJECTION PROCESS
+			for(let extName in _ext){
+				// SET DEPENDENCES
+				//this.init_forDependencies(extName);
+				let tmp = new _ext[extName]();
+				if(tmp.DEPS && tmp.DEPS.length>0){
+					let extScope = {};
+					for(let dep of tmp.DEPS)
+						extScope[dep.name] = null;
+					_ext[extName] = FuncScopeRedefiner.set(_ext[extName], extScope).get_result();
+				}
+				// INJECT EXTENSIONS
+				let ext = _ext[extName];
+				if(typeof ext === 'function'){
+					this[extName] = new ext(this);
+					// INIT EXTENSION
+					if(this[extName].__INIT__)
+						this[extName].__INIT__();
+				}
+				else
+					this[extName] = ext;
+				extNameList.push(extName);
+			}
+			// LINK EXTENSIONS
+			for(let extName of extNameList){
+				if(this[extName].__LINK__)
+					this[extName].__LINK__(extNameList, extName);
+			}
+		},
+
+		/* init_forDependencies : function(extName){
+			var tmp = new _ext[extName]();
+			if(tmp.DEPS && tmp.DEPS.length>0){
+				var extScope = {};
+				for(let dep of tmp.DEPS)
+					extScope[dep.name] = null;
+				_ext[extName] = this.FuncScopeRedefiner.set(_ext[extName], extScope).get_result();
+			}
+		}, */
+
 	};
 
 
 	// PARENT SCOPE OF ZGL
 	return (function(){
 
-		var FuncScopeRedefiner = this.PROTECTED_SCOPE.FuncScopeRedefiner;
-		delete this.PROTECTED_SCOPE;
-
 		var _lib = {};
 		var _ext = {};
+
+		var FuncScopeRedefiner = this.PROTECTED_SCOPE.FuncScopeRedefiner;
+
+		//var inject_extensions = this.PROTECTED_SCOPE.inject_extensions;
+		var inject_extensions = FuncScopeRedefiner.set(
+			this.PROTECTED_SCOPE.inject_extensions,
+			{_ext:_ext, FuncScopeRedefiner:FuncScopeRedefiner}
+		).get_result();
+
+		delete this.PROTECTED_SCOPE;
 
 		var argsWrapper = function(args){
 
@@ -79,7 +127,7 @@ var ZGL = (function(){
 				this.contextType = 'webgl';
 		};
 
-		var inject_extensions = function(){
+		/* var inject_extensions = function(){
 			var extNameList = [];
 			// INJECT EXTENSIONS
 			for(let extName in _ext){
@@ -101,9 +149,9 @@ var ZGL = (function(){
 					this[extName].__LINK__(extNameList, extName);
 			}
 
-		};
+		}; */
 
-		var init_forDependencies = function(extName){
+		/* var init_forDependencies = function(extName){
 			var tmp = new _ext[extName]();
 			if(tmp.DEPS && tmp.DEPS.length>0){
 				var extScope = {};
@@ -111,19 +159,21 @@ var ZGL = (function(){
 					extScope[dep.name] = null;
 				_ext[extName] = FuncScopeRedefiner.set(_ext[extName], extScope).get_result();
 			}
-		};
+		}; */
 
-		var EXTENSION_CORE_LIB__LINK__method = function(extNameList, name){
-			if(this.DEPS && this.DEPS.length>0)
-				for(let dep of this.DEPS){
-					let found = false;
-					for(let extName of extNameList)
-						if(zgl[extName].NAME === dep.src){
-							eval(dep.name+' = zgl[extName];');
-							found = true;
-						}
-					if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
-				}
+		this.EXTENSION_CORE_LIB = {
+			__LINK__code : '('+(function(extNameList, name){
+				if(this.DEPS && this.DEPS.length>0)
+					for(let dep of this.DEPS){
+						let found = false;
+						for(let extName of extNameList)
+							if(zgl[extName].NAME === dep.src){
+								eval(dep.name+' = zgl[extName];');
+								found = true;
+							}
+						if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
+					}
+			}).toString()+')',
 		};
 
 		// ZGL CLASS
@@ -156,9 +206,8 @@ var ZGL = (function(){
 		ZGL.lib = _lib;
 		ZGL.ext = _ext;
 
-		ZGL.EXTENSION_CORE_LIB = {
-			__LINK__code : '('+EXTENSION_CORE_LIB__LINK__method.toString()+')',
-		};
+		ZGL.EXTENSION_CORE_LIB = this.EXTENSION_CORE_LIB;
+		delete this.EXTENSION_CORE_LIB;
 	
 		return ZGL;
 	})();
