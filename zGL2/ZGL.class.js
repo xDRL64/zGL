@@ -100,6 +100,20 @@ var ZGL = (function(){
 
 	};
 
+	this.EXTENSION_CORE_LIB = {
+		__LINK__code : '('+(function(extNameList, name){
+			if(this.DEPS && this.DEPS.length>0)
+				for(let dep of this.DEPS){
+					let found = false;
+					for(let extName of extNameList)
+						if(zgl[extName].NAME === dep.src){
+							eval(dep.name+' = zgl[extName];');
+							found = true;
+						}
+					if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
+				}
+		}).toString()+')',
+	};
 
 	// PARENT SCOPE OF ZGL
 	return (function(){
@@ -119,36 +133,7 @@ var ZGL = (function(){
 		delete this.PROTECTED_SCOPE;
 
 
-		/* var argsWrapper = function(args){
-
-			// CHECK 1ST ARG : CANVAS DOM ELEMENT
-			let arg = args[0];
-			if(arg instanceof HTMLCanvasElement)
-				this.domElem = arg;
-			else if(typeof arg === 'string'){
-				let elem = document.getElementById(arg);
-				if(elem instanceof HTMLCanvasElement)
-					this.domElem = elem;
-				else
-					this.domElem = document.createElement('CANVAS');
-			}else
-				this.domElem = document.createElement('CANVAS');
-			
-			// CHECK 2ND ARG : WEBGL CONTEXT TYPE
-			arg = args[1];
-			if(typeof arg === 'string'){
-				let goodContextType = false;
-				goodContextType += arg=='webgl';
-				goodContextType += arg=='webgl2';
-				goodContextType += arg=='experimental-webgl';
-				this.contextType = goodContextType? arg : 'webgl';
-			}else
-				this.contextType = 'webgl';
-		}; */
-
-
-
-		this.EXTENSION_CORE_LIB = {
+		/* this.EXTENSION_CORE_LIB = {
 			__LINK__code : '('+(function(extNameList, name){
 				if(this.DEPS && this.DEPS.length>0)
 					for(let dep of this.DEPS){
@@ -161,7 +146,7 @@ var ZGL = (function(){
 						if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
 					}
 			}).toString()+')',
-		};
+		}; */
 
 		// ZGL CLASS
 		/**

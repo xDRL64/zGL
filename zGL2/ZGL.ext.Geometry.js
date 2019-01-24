@@ -1,6 +1,6 @@
 
 
-var ZGL_ext_Geometry = function(zgl){
+this.ZGL_ext_Geometry = function(zgl){
 	
 	this.__INIT__ = function(){};
 

@@ -1,0 +1,3 @@
+this.ZGL_Initializer = {
+	
+};
