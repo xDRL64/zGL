@@ -1,6 +1,29 @@
+
+
 var ZGL_ext_Geometry = function(zgl){
 	
+	this.__INIT__ = function(){};
+
+	this.__LINK__ = function(extNameList){
+		/* for(let extName of extNameList)
+			if(zgl[extName] && zgl[extName].NAME)
+				for(let dep of this.DEPS)
+					if(zgl[extName].NAME === dep) */
+		math = zgl.Math;
+	};
 	
+	this.NAME = 'Geometry';
+
+	this.DEPS = [
+		'Math',
+	];
+
+	var math = null;
+	this.test_math = function(){
+		console.log(math);
+		console.log(math2);
+	};
+
 
 	// supprime les données (vertices, colors, UVs, normals)
 	// re-index les donnée liées aux faces

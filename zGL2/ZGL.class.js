@@ -84,7 +84,7 @@ var ZGL = (function(){
 			};
 		};
 
-		var inject_extensions = function(){
+		/* var inject_extensions = function(){
 			var extNameList = [];
 			for(let extName in _ext){
 				let ext = _ext[extName];
@@ -93,6 +93,28 @@ var ZGL = (function(){
 				else
 					this[extName] = ext;
 				extNameList.push(extName);
+			}
+			return extNameList;
+		}; */
+
+		var inject_extensions = function(){
+			var extNameList = [];
+			// INJECT EXTENSIONS
+			for(let extName in _ext){
+				let ext = _ext[extName];
+				if(typeof ext === 'function'){
+					this[extName] = new ext(this);
+					if(this[extName].__INIT__)
+						this[extName].__INIT__();
+				}
+				else
+					this[extName] = ext;
+				extNameList.push(extName);
+			}
+			// INIT EXTENSION
+			for(let extName of extNameList){
+				if(this[extName].__LINK__)
+					this[extName].__LINK__(extNameList);
 			}
 			return extNameList;
 		};
@@ -117,16 +139,12 @@ var ZGL = (function(){
 			let libScope = {
 				gl  : gl,
 				zgl : this,
-			}
+			};
 			// KEEP 'libScopeSettings' in 'this' until 'set_libScope' using
-			// BECAUSE 'set_libScope' must take no arguments
+			// BECAUSE 'set_libScope' must take no arguments BUT needs to access 'libScopeSettings'
 			this.libScopeSettings = make_scopeLibSettings(libScope);
-
 			// INTI LIB SCOPE
-			//this.set_libScope = classMethods.set_libScope;
-			//this.set_libScope();
 			set_libScope.call(this);
-			//delete this.set_libScope;
 			delete this.libScopeSettings;
 
 			// INJECT EXTENSIONS
@@ -147,8 +165,17 @@ var ZGL = (function(){
 })();
 
 // ZGL.ext.propNameOfTheExtension = extension (function or object)
-// ZGL.ext.exemple = function(){this.a=1, this.b=2}; // créer une instance
-// ZGL.ext.exemple = {a:3,b:4}; // copie la reference de l'objet
+
+// créer une instance (chaque instance de ZGL a sa propre extension)
+// l'extension possède un access à l'instance ZGL qui la contient
+// declanche automatiquement la methode __INIT__ de l'extension pendant l'ajout de l'extension à l'instance ZGL
+// declanche automatiquement la methode __LINK__ de l'extension apres l'ajout de toutes les extensions à l'instance ZGL
+// la methode __LINK__ recoi en arg 0 : la list des noms de toutes les extensions ajoutées à l'instance ZGL
+// ZGL.ext.exemple = function(zgl){this.a=1, this.b=2};
+
+// copie la reference de l'objet (toutes les instances de ZGL partage l'extension)
+// l'extension ne possède pas d'access à l'instance ZGL qui la contient
+// ZGL.ext.exemple = {a:3,b:4};
 
 
 // ZGL.lib.functionName = functionObject
