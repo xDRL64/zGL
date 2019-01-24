@@ -1,14 +1,14 @@
 
 // EXTENSION ENABLE :
 
-ZGL.ext.Geometry = this.ZGL_ext_Geometry;
-ZGL.ext.Math     = ZGL_ext_Math;
-ZGL.ext.Loader   = ZGL_ext_Loader;
-ZGL.ext.FBX      = ZGL_ext_FBX;
+//ZGL.ext.Math     = ZGL_ext_Math;
+//ZGL.ext.Geometry = this.ZGL_ext_Geometry;
+//ZGL.ext.Loader   = ZGL_ext_Loader;
+//ZGL.ext.FBX      = ZGL_ext_FBX;
 
-delete this.ZGL_ext_Geometry;
+//delete this.ZGL_ext_Geometry;
 
-ZGL.lib.vbo = function(data){
+this.ZGL_Initializer.lib.vbo = function(data){
     var vBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
@@ -19,4 +19,5 @@ ZGL.lib.vbo = function(data){
 
 
 
-
+var ZGL = ZGL_Initializer.ZGL_Class;
+delete this.ZGL_Initializer;

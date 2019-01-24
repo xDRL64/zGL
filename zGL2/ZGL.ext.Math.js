@@ -1,4 +1,4 @@
-var ZGL_ext_Math = function(zgl){
+this.ZGL_Initializer.ext.Math = function(zgl){
 	
 	this.NAME = 'Math';
 

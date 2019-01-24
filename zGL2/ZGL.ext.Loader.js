@@ -1,4 +1,4 @@
-var ZGL_ext_Loader = function(zgl){
+this.ZGL_Initializer.ext.Loader = function(zgl){
 
 	
 	this.loading = 0;

@@ -1,5 +1,5 @@
 
-var ZGL_ext_FBX = function(zgl){
+this.ZGL_Initializer.ext.FBX = function(zgl){
 	// compatible : FBX2010 & BlenderExporter
 
 	// private statics

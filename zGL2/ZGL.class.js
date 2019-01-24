@@ -1,8 +1,8 @@
-var ZGL = (function(){
+this.ZGL_Initializer.ZGL_Class = (function(){
 
 
 	// METHODES OF ZGL NEEDS PRIVATE AND EMPTY SCOPE
-	this.PROTECTED_SCOPE = {
+	/* this.PROTECTED_SCOPE = {
 
 		FuncScopeRedefiner : {
 			injections : null,
@@ -113,7 +113,7 @@ var ZGL = (function(){
 					if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
 				}
 		}).toString()+')',
-	};
+	}; */
 
 	// PARENT SCOPE OF ZGL
 	return (function(){
@@ -121,32 +121,19 @@ var ZGL = (function(){
 		var _lib = {};
 		var _ext = {};
 
-		var FuncScopeRedefiner = this.PROTECTED_SCOPE.FuncScopeRedefiner;
+		var FuncScopeRedefiner = this.ZGL_Initializer.PROTECTED_SCOPE.FuncScopeRedefiner;
 
-		var argsWrapper = this.PROTECTED_SCOPE.argsWrapper;
+		var argsWrapper = this.ZGL_Initializer.PROTECTED_SCOPE.argsWrapper;
 
 		var inject_extensions = FuncScopeRedefiner.set(
-			this.PROTECTED_SCOPE.inject_extensions,
+			this.ZGL_Initializer.PROTECTED_SCOPE.inject_extensions,
 			{_ext:_ext, FuncScopeRedefiner:FuncScopeRedefiner}
 		).get_result();
 
-		delete this.PROTECTED_SCOPE;
+		//delete this.PROTECTED_SCOPE;
 
 
-		/* this.EXTENSION_CORE_LIB = {
-			__LINK__code : '('+(function(extNameList, name){
-				if(this.DEPS && this.DEPS.length>0)
-					for(let dep of this.DEPS){
-						let found = false;
-						for(let extName of extNameList)
-							if(zgl[extName].NAME === dep.src){
-								eval(dep.name+' = zgl[extName];');
-								found = true;
-							}
-						if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
-					}
-			}).toString()+')',
-		}; */
+		
 
 		// ZGL CLASS
 		/**
@@ -175,11 +162,13 @@ var ZGL = (function(){
 			inject_extensions.call(this);
 		};
 	
-		ZGL.lib = _lib;
-		ZGL.ext = _ext;
+		//ZGL.lib = _lib;
+		//ZGL.ext = _ext;
+		this.ZGL_Initializer.lib = _lib;
+		this.ZGL_Initializer.ext = _ext;
 
-		ZGL.EXTENSION_CORE_LIB = this.EXTENSION_CORE_LIB;
-		delete this.EXTENSION_CORE_LIB;
+		ZGL.EXTENSION_CORE_LIB = this.ZGL_Initializer.EXTENSION_CORE_LIB;
+		//delete this.EXTENSION_CORE_LIB;
 	
 		return ZGL;
 	})();
