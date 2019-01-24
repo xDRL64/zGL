@@ -71,36 +71,7 @@ var ZGL = (function(){
 			}
 		},
 
-		/* init_forDependencies : function(extName){
-			var tmp = new _ext[extName]();
-			if(tmp.DEPS && tmp.DEPS.length>0){
-				var extScope = {};
-				for(let dep of tmp.DEPS)
-					extScope[dep.name] = null;
-				_ext[extName] = this.FuncScopeRedefiner.set(_ext[extName], extScope).get_result();
-			}
-		}, */
-
-	};
-
-
-	// PARENT SCOPE OF ZGL
-	return (function(){
-
-		var _lib = {};
-		var _ext = {};
-
-		var FuncScopeRedefiner = this.PROTECTED_SCOPE.FuncScopeRedefiner;
-
-		//var inject_extensions = this.PROTECTED_SCOPE.inject_extensions;
-		var inject_extensions = FuncScopeRedefiner.set(
-			this.PROTECTED_SCOPE.inject_extensions,
-			{_ext:_ext, FuncScopeRedefiner:FuncScopeRedefiner}
-		).get_result();
-
-		delete this.PROTECTED_SCOPE;
-
-		var argsWrapper = function(args){
+		argsWrapper : function(args){
 
 			// CHECK 1ST ARG : CANVAS DOM ELEMENT
 			let arg = args[0];
@@ -125,41 +96,57 @@ var ZGL = (function(){
 				this.contextType = goodContextType? arg : 'webgl';
 			}else
 				this.contextType = 'webgl';
-		};
+		}
 
-		/* var inject_extensions = function(){
-			var extNameList = [];
-			// INJECT EXTENSIONS
-			for(let extName in _ext){
-				init_forDependencies(extName);
-				let ext = _ext[extName];
-				if(typeof ext === 'function'){
-					this[extName] = new ext(this);
-					// INIT EXTENSION
-					if(this[extName].__INIT__)
-						this[extName].__INIT__();
-				}
+	};
+
+
+	// PARENT SCOPE OF ZGL
+	return (function(){
+
+		var _lib = {};
+		var _ext = {};
+
+		var FuncScopeRedefiner = this.PROTECTED_SCOPE.FuncScopeRedefiner;
+
+		var argsWrapper = this.PROTECTED_SCOPE.argsWrapper;
+
+		var inject_extensions = FuncScopeRedefiner.set(
+			this.PROTECTED_SCOPE.inject_extensions,
+			{_ext:_ext, FuncScopeRedefiner:FuncScopeRedefiner}
+		).get_result();
+
+		delete this.PROTECTED_SCOPE;
+
+
+		/* var argsWrapper = function(args){
+
+			// CHECK 1ST ARG : CANVAS DOM ELEMENT
+			let arg = args[0];
+			if(arg instanceof HTMLCanvasElement)
+				this.domElem = arg;
+			else if(typeof arg === 'string'){
+				let elem = document.getElementById(arg);
+				if(elem instanceof HTMLCanvasElement)
+					this.domElem = elem;
 				else
-					this[extName] = ext;
-				extNameList.push(extName);
-			}
-			// LINK EXTENSIONS
-			for(let extName of extNameList){
-				if(this[extName].__LINK__)
-					this[extName].__LINK__(extNameList, extName);
-			}
-
+					this.domElem = document.createElement('CANVAS');
+			}else
+				this.domElem = document.createElement('CANVAS');
+			
+			// CHECK 2ND ARG : WEBGL CONTEXT TYPE
+			arg = args[1];
+			if(typeof arg === 'string'){
+				let goodContextType = false;
+				goodContextType += arg=='webgl';
+				goodContextType += arg=='webgl2';
+				goodContextType += arg=='experimental-webgl';
+				this.contextType = goodContextType? arg : 'webgl';
+			}else
+				this.contextType = 'webgl';
 		}; */
 
-		/* var init_forDependencies = function(extName){
-			var tmp = new _ext[extName]();
-			if(tmp.DEPS && tmp.DEPS.length>0){
-				var extScope = {};
-				for(let dep of tmp.DEPS)
-					extScope[dep.name] = null;
-				_ext[extName] = FuncScopeRedefiner.set(_ext[extName], extScope).get_result();
-			}
-		}; */
+
 
 		this.EXTENSION_CORE_LIB = {
 			__LINK__code : '('+(function(extNameList, name){
