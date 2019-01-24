@@ -6,12 +6,12 @@ this.ZGL_Initializer.ZGL_Class = (function(){
 	var _ext = this.ZGL_Initializer.ZGL_ext;
 	
 
-	var FuncScopeRedefiner = this.ZGL_Initializer.PROTECTED_SCOPE.FuncScopeRedefiner;
+	var FuncScopeRedefiner = this.ZGL_Initializer.ZGL_SYS_LIB.FuncScopeRedefiner;
 
-	var argsWrapper = this.ZGL_Initializer.PROTECTED_SCOPE.argsWrapper;
+	var argsWrapper = this.ZGL_Initializer.ZGL_SYS_LIB.argsWrapper;
 
 	var inject_extensions = FuncScopeRedefiner.set(
-		this.ZGL_Initializer.PROTECTED_SCOPE.inject_extensions,
+		this.ZGL_Initializer.ZGL_SYS_LIB.inject_extensions,
 		{_ext:_ext, FuncScopeRedefiner:FuncScopeRedefiner}
 	).get_result();
 
