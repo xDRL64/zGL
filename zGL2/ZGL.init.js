@@ -1,7 +1,7 @@
 this.ZGL_Initializer = (function(){
 
-
-	this.PROTECTED_SCOPE = {
+	this.ZGL_Initializer = {};
+	this.ZGL_Initializer.PROTECTED_SCOPE = {
 	
 		FuncScopeRedefiner : {
 			injections : null,
@@ -145,7 +145,7 @@ this.ZGL_Initializer = (function(){
 			}).toString()+')',
 		};
 	
-	})(this.PROTECTED_SCOPE);
+	})(this.ZGL_Initializer.PROTECTED_SCOPE);
 
 })();
 
