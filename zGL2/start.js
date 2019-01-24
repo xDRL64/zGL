@@ -54,7 +54,7 @@ var functionScopeRedefiner = {
 	}
 };
 
-
+/* 
 var func0 = function(){
 	console.log(a,b);
 	this.method = function(){console.log("la:",a,b);};
@@ -82,6 +82,7 @@ pack2();
 var Geo = functionScopeRedefiner.set(ZGL_ext_Geometry,{math2:"1234"}).get_result();
 var geo = new Geo();
 geo.test_math();
+ */
 
 /* 
 var functionScopeRedefiner = {

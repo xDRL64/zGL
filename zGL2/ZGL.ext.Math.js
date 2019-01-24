@@ -1,5 +1,7 @@
 var ZGL_ext_Math = function(zgl){
 	
+	this.NAME = 'Math';
+
 	this.degToRad = function(angle){
 		return (angle*Math.PI)/180;
 	};

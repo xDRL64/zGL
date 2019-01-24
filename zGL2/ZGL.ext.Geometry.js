@@ -4,21 +4,17 @@ var ZGL_ext_Geometry = function(zgl){
 	
 	this.__INIT__ = function(){};
 
-	this.__LINK__ = function(extNameList){
-		/* for(let extName of extNameList)
-			if(zgl[extName] && zgl[extName].NAME)
-				for(let dep of this.DEPS)
-					if(zgl[extName].NAME === dep) */
-		math = zgl.Math;
-	};
+	// THIS METHOD CAN'T BE INHERITED, BECAUSE IT NEEDS THE CLASS SCOPE
+	this.__LINK__ = eval(ZGL.EXTENSION_CORE_LIB.__LINK__code);
 	
 	this.NAME = 'Geometry';
 
 	this.DEPS = [
-		'Math',
+		{name : 'math', src : 'Math'},
+		{name : 'math2', src : 'NulL'}
 	];
 
-	var math = null;
+	//var math = null;
 	this.test_math = function(){
 		console.log(math);
 		console.log(math2);
@@ -126,12 +122,6 @@ var ZGL_ext_Geometry = function(zgl){
 		for(var iVec=0; iVec<allvec.length; iVec++)
 			zGLmesh[ allvec[iVec] ] = o[ allvec[iVec] ];
 		zGLmesh.f = faceIndex;
-	};
-
-
-
-	this.callmath = function(){
-		console.log(zgl.Math);
 	};
 
 };

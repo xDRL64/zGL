@@ -4,29 +4,39 @@ var ZGL = (function(){
 	// METHODES OF ZGL NEEDS PRIVATE AND EMPTY SCOPE
 	this.PROTECTED_SCOPE = {
 
-		set_libScope : function( /* DON'T PASS ARGS BECAUSE THEY WILL STAY IN THE SCOPE */ ){
-
-			// TEMP RAM
-			this.LSS = this.libScopeSettings;
-			this.TMP = {};
-			this.TMP.method = null;
-			this.TMP.varName = '';
-
-			// CREER LES VARIABLE ACCESSIBLE DANS LE SCOPE
-			for(this.TMP.varName in this.LSS.scope)
-				eval('var '+this.TMP.varName+' = this.LSS.scope[this.TMP.varName]');
-	
-			// REDEFINI LE SCOPE POUR TOUTES LES METHODES
-			// ASSIGNE TOUTES LES METHODES A ZGL
-			this.TMP.method = null;
-			for(this.TMP.method of this.LSS.methods)
-				this[this.TMP.method.name] = eval(this.TMP.method.code);
-			
-			// CLEAN TMP RAM
-			delete this.LSS;
-			delete this.TMP.method;
-			delete this.TMP.varName;
-			delete this.TMP;
+		FuncScopeRedefiner : {
+			injections : null,
+			funcObject : null,
+		
+			set : function(funcObject, injections){
+				this.funcObject = funcObject;
+				this.injections = injections;
+				return this;
+			},
+		
+			get_result : function(){
+				// SCOPE INIT
+				for(let name in this.injections)
+					eval('var '+name+' = this.injections[name]');
+		
+				// FUNCTION REDEFINITION
+				if(typeof this.funcObject === 'function')
+					return eval('('+this.funcObject.toString()+')');
+				// FUNCTION REDEFINITIONS
+				if(typeof this.funcObject === 'object'){
+					this.o = {};
+					this.name = null;
+					for(this.name of Object.keys(this.funcObject))
+						this.o[this.name] = eval('('+this.funcObject[this.name].toString()+')');
+					delete this.name;
+					return (function(object, prop){
+						let output = object[prop];
+						delete object[prop];
+						return output;
+					})(this, 'o');
+				}
+					
+			}
 		},
 
 		
@@ -36,8 +46,7 @@ var ZGL = (function(){
 	// PARENT SCOPE OF ZGL
 	return (function(){
 
-		//var classMethods = this.PROTECTED_SCOPE;
-		var set_libScope = this.PROTECTED_SCOPE.set_libScope;
+		var FuncScopeRedefiner = this.PROTECTED_SCOPE.FuncScopeRedefiner;
 		delete this.PROTECTED_SCOPE;
 
 		var _lib = {};
@@ -70,40 +79,15 @@ var ZGL = (function(){
 				this.contextType = 'webgl';
 		};
 
-		var make_scopeLibSettings = function(libScope){
-			let methods = [];
-			for(let method in _lib){
-				methods.push({
-					name : method,
-					code : _lib[method].toSource()
-				});
-			}
-			return {
-				methods : methods,
-				scope   : libScope,
-			};
-		};
-
-		/* var inject_extensions = function(){
-			var extNameList = [];
-			for(let extName in _ext){
-				let ext = _ext[extName];
-				if(typeof ext === 'function')
-					this[extName] = new ext(this);
-				else
-					this[extName] = ext;
-				extNameList.push(extName);
-			}
-			return extNameList;
-		}; */
-
 		var inject_extensions = function(){
 			var extNameList = [];
 			// INJECT EXTENSIONS
 			for(let extName in _ext){
+				init_forDependencies(extName);
 				let ext = _ext[extName];
 				if(typeof ext === 'function'){
 					this[extName] = new ext(this);
+					// INIT EXTENSION
 					if(this[extName].__INIT__)
 						this[extName].__INIT__();
 				}
@@ -111,12 +95,35 @@ var ZGL = (function(){
 					this[extName] = ext;
 				extNameList.push(extName);
 			}
-			// INIT EXTENSION
+			// LINK EXTENSIONS
 			for(let extName of extNameList){
 				if(this[extName].__LINK__)
-					this[extName].__LINK__(extNameList);
+					this[extName].__LINK__(extNameList, extName);
 			}
-			return extNameList;
+
+		};
+
+		var init_forDependencies = function(extName){
+			var tmp = new _ext[extName]();
+			if(tmp.DEPS && tmp.DEPS.length>0){
+				var extScope = {};
+				for(let dep of tmp.DEPS)
+					extScope[dep.name] = null;
+				_ext[extName] = FuncScopeRedefiner.set(_ext[extName], extScope).get_result();
+			}
+		};
+
+		var EXTENSION_CORE_LIB__LINK__method = function(extNameList, name){
+			if(this.DEPS && this.DEPS.length>0)
+				for(let dep of this.DEPS){
+					let found = false;
+					for(let extName of extNameList)
+						if(zgl[extName].NAME === dep.src){
+							eval(dep.name+' = zgl[extName];');
+							found = true;
+						}
+					if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
+				}
 		};
 
 		// ZGL CLASS
@@ -140,23 +147,18 @@ var ZGL = (function(){
 				gl  : gl,
 				zgl : this,
 			};
-			// KEEP 'libScopeSettings' in 'this' until 'set_libScope' using
-			// BECAUSE 'set_libScope' must take no arguments BUT needs to access 'libScopeSettings'
-			this.libScopeSettings = make_scopeLibSettings(libScope);
-			// INTI LIB SCOPE
-			set_libScope.call(this);
-			delete this.libScopeSettings;
+			Object.assign( this, FuncScopeRedefiner.set(_lib, libScope).get_result() );
 
 			// INJECT EXTENSIONS
-			let extNameList = inject_extensions.call(this);
-
-
-			// todo : execute init of each extension
-
+			inject_extensions.call(this);
 		};
 	
 		ZGL.lib = _lib;
 		ZGL.ext = _ext;
+
+		ZGL.EXTENSION_CORE_LIB = {
+			__LINK__code : '('+EXTENSION_CORE_LIB__LINK__method.toString()+')',
+		};
 	
 		return ZGL;
 	})();
