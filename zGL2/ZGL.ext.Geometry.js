@@ -3,7 +3,6 @@ this.ZGL_Initializer.ext.Geometry = function(zgl){
 	this.__INIT__ = function(){};
 
 	// THIS METHOD CAN'T BE INHERITED, BECAUSE IT NEEDS THE CLASS SCOPE
-	
 	this.__LINK__ = eval(ZGL.EXTENSION_CORE_LIB.__LINK__code);
 	
 	this.NAME = 'Geometry';

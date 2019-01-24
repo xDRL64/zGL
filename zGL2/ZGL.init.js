@@ -1,10 +1,31 @@
-this.ZGL_Initializer = {
+this.ZGL_Initializer = new (function(){
 
-	ZGL_Class : null,
-	lib       : null,
-	ext       : null,
+	this.ZGL_Class = null;
 
-	PROTECTED_SCOPE : {
+	var _lib = {};
+	Object.defineProperties(this, {'lib':{
+		get : function(){ return _lib; },
+		set : function(val){
+			if(typeof val === 'object')
+				Object.assign(_lib, val);
+		},
+	}});
+	this.ZGL_lib = _lib;
+
+	var _ext = {};
+	Object.defineProperties(this, {'ext':{
+		get : function(){ return _ext; },
+		set : function(val){
+			if(typeof val === 'object')
+				Object.assign(_ext, val);
+		},
+	}});
+	this.ZGL_ext = _ext;
+
+	
+
+
+	this.PROTECTED_SCOPE = {
 
 		FuncScopeRedefiner : {
 			injections : null,
@@ -100,9 +121,9 @@ this.ZGL_Initializer = {
 				this.contextType = 'webgl';
 		}
 
-	},
+	};
 
-	EXTENSION_CORE_LIB : {
+	this.EXTENSION_CORE_LIB = {
 		__LINK__code : '('+(function(extNameList, name){
 			if(this.DEPS && this.DEPS.length>0)
 				for(let dep of this.DEPS){
@@ -115,5 +136,6 @@ this.ZGL_Initializer = {
 					if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
 				}
 		}).toString()+')',
-	},
-};
+	};
+
+})();

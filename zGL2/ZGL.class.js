@@ -1,180 +1,74 @@
 this.ZGL_Initializer.ZGL_Class = (function(){
 
 
-	// METHODES OF ZGL NEEDS PRIVATE AND EMPTY SCOPE
-	/* this.PROTECTED_SCOPE = {
 
-		FuncScopeRedefiner : {
-			injections : null,
-			funcObject : null,
+	var _lib = this.ZGL_Initializer.ZGL_lib;
+	var _ext = this.ZGL_Initializer.ZGL_ext;
+	
+
+	var FuncScopeRedefiner = this.ZGL_Initializer.PROTECTED_SCOPE.FuncScopeRedefiner;
+
+	var argsWrapper = this.ZGL_Initializer.PROTECTED_SCOPE.argsWrapper;
+
+	var inject_extensions = FuncScopeRedefiner.set(
+		this.ZGL_Initializer.PROTECTED_SCOPE.inject_extensions,
+		{_ext:_ext, FuncScopeRedefiner:FuncScopeRedefiner}
+	).get_result();
+
+
+
+	// ZGL CLASS
+	/**
+	 * @param canvas  : ('elem':HTMLCanvasElement || 'cssID':string)
+	 * @param context : string
+	 */
+	var ZGL = function( /* See param Instruction */ ){
+
+		// SET :
+		// --> this.domElem
+		// --> this.contextType
+		argsWrapper.call(this, arguments);
 		
-			set : function(funcObject, injections){
-				this.funcObject = funcObject;
-				this.injections = injections;
-				return this;
-			},
-		
-			get_result : function(){
-				// SCOPE INIT
-				for(let name in this.injections)
-					eval('var '+name+' = this.injections[name]');
-		
-				// FUNCTION REDEFINITION
-				if(typeof this.funcObject === 'function')
-					return eval('('+this.funcObject.toString()+')');
-				// FUNCTION REDEFINITIONS
-				if(typeof this.funcObject === 'object'){
-					this.o = {};
-					this.name = null;
-					for(this.name of Object.keys(this.funcObject))
-						this.o[this.name] = eval('('+this.funcObject[this.name].toString()+')');
-					delete this.name;
-					return (function(object, prop){
-						let output = object[prop];
-						delete object[prop];
-						return output;
-					})(this, 'o');
-				}
-					
-			}
-		},
+		// WEBGL API CONTEXT
+		var gl = this.domElem.getContext(this.contextType);
+		this.gl = gl;
+	
+		// LIB SCOPE SETTINGS
+		let libScope = {
+			gl  : gl,
+			zgl : this,
+		};
+		Object.assign( this, FuncScopeRedefiner.set(_lib, libScope).get_result() );
 
-		inject_extensions : function(){
-			var extNameList = [];
-			// INJECTION PROCESS
-			for(let extName in _ext){
-				// SET DEPENDENCES
-				//this.init_forDependencies(extName);
-				let tmp = new _ext[extName]();
-				if(tmp.DEPS && tmp.DEPS.length>0){
-					let extScope = {};
-					for(let dep of tmp.DEPS)
-						extScope[dep.name] = null;
-					_ext[extName] = FuncScopeRedefiner.set(_ext[extName], extScope).get_result();
-				}
-				// INJECT EXTENSIONS
-				let ext = _ext[extName];
-				if(typeof ext === 'function'){
-					this[extName] = new ext(this);
-					// INIT EXTENSION
-					if(this[extName].__INIT__)
-						this[extName].__INIT__();
-				}
-				else
-					this[extName] = ext;
-				extNameList.push(extName);
-			}
-			// LINK EXTENSIONS
-			for(let extName of extNameList){
-				if(this[extName].__LINK__)
-					this[extName].__LINK__(extNameList, extName);
-			}
-		},
-
-		argsWrapper : function(args){
-
-			// CHECK 1ST ARG : CANVAS DOM ELEMENT
-			let arg = args[0];
-			if(arg instanceof HTMLCanvasElement)
-				this.domElem = arg;
-			else if(typeof arg === 'string'){
-				let elem = document.getElementById(arg);
-				if(elem instanceof HTMLCanvasElement)
-					this.domElem = elem;
-				else
-					this.domElem = document.createElement('CANVAS');
-			}else
-				this.domElem = document.createElement('CANVAS');
-			
-			// CHECK 2ND ARG : WEBGL CONTEXT TYPE
-			arg = args[1];
-			if(typeof arg === 'string'){
-				let goodContextType = false;
-				goodContextType += arg=='webgl';
-				goodContextType += arg=='webgl2';
-				goodContextType += arg=='experimental-webgl';
-				this.contextType = goodContextType? arg : 'webgl';
-			}else
-				this.contextType = 'webgl';
-		}
-
+		// INJECT EXTENSIONS
+		inject_extensions.call(this);
 	};
 
-	this.EXTENSION_CORE_LIB = {
-		__LINK__code : '('+(function(extNameList, name){
-			if(this.DEPS && this.DEPS.length>0)
-				for(let dep of this.DEPS){
-					let found = false;
-					for(let extName of extNameList)
-						if(zgl[extName].NAME === dep.src){
-							eval(dep.name+' = zgl[extName];');
-							found = true;
-						}
-					if(!found) console.warn('Dependence : '+dep.name+' of ZGL.'+name+' is not found !');
-				}
-		}).toString()+')',
-	}; */
+	//this.ZGL_Initializer.lib = _lib;
+	Object.defineProperties(ZGL, {'lib':{
+		get : function(){ return _lib; },
+		set : function(val){
+			if(typeof val === 'object')
+				Object.assign(_lib, val);
+		},
+	}});
 
-	// PARENT SCOPE OF ZGL
-	return (function(){
-
-		var _lib = {};
-		var _ext = {};
-
-		var FuncScopeRedefiner = this.ZGL_Initializer.PROTECTED_SCOPE.FuncScopeRedefiner;
-
-		var argsWrapper = this.ZGL_Initializer.PROTECTED_SCOPE.argsWrapper;
-
-		var inject_extensions = FuncScopeRedefiner.set(
-			this.ZGL_Initializer.PROTECTED_SCOPE.inject_extensions,
-			{_ext:_ext, FuncScopeRedefiner:FuncScopeRedefiner}
-		).get_result();
-
-		//delete this.PROTECTED_SCOPE;
-
-
-		
-
-		// ZGL CLASS
-		/**
-		 * @param canvas  : ('elem':HTMLCanvasElement || 'cssID':string)
-		 * @param context : string
-		 */
-		var ZGL = function( /* See param Instruction */ ){
+	Object.defineProperties(ZGL, {'ext':{
+		get : function(){ return _ext; },
+		set : function(val){
+			if(typeof val === 'object')
+				Object.assign(_ext, val);
+		},
+	}});
 	
-			// SET :
-			// --> this.domElem
-			// --> this.contextType
-			argsWrapper.call(this, arguments);
-			
-			// WEBGL API CONTEXT
-			var gl = this.domElem.getContext(this.contextType);
-			this.gl = gl;
-		
-			// LIB SCOPE SETTINGS
-			let libScope = {
-				gl  : gl,
-				zgl : this,
-			};
-			Object.assign( this, FuncScopeRedefiner.set(_lib, libScope).get_result() );
 
-			// INJECT EXTENSIONS
-			inject_extensions.call(this);
-		};
-	
-		//ZGL.lib = _lib;
-		//ZGL.ext = _ext;
-		this.ZGL_Initializer.lib = _lib;
-		this.ZGL_Initializer.ext = _ext;
+	ZGL.EXTENSION_CORE_LIB = this.ZGL_Initializer.EXTENSION_CORE_LIB;
 
-		ZGL.EXTENSION_CORE_LIB = this.ZGL_Initializer.EXTENSION_CORE_LIB;
-		//delete this.EXTENSION_CORE_LIB;
-	
-		return ZGL;
-	})();
-
-
+	return ZGL;
 })();
+
+
+
 
 // ZGL.ext.propNameOfTheExtension = extension (function or object)
 
