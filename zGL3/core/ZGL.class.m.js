@@ -3,10 +3,11 @@
 var ZGL_Class = function(Module){
 
 	// PRIVATE STATIC METHODS
-	var FuncScopeRedefiner = Module.SYS_LIB.FuncScopeRedefiner;
-	var insert_prototype   = Module.SYS_LIB.insert_prototype;
+	var FuncScopeRedefiner      = Module.SYS_LIB.FuncScopeRedefiner;
+	var insert_prototype        = Module.SYS_LIB.insert_prototype;
+	var add_objectStackProperty = Module.SYS_LIB.add_objectStackProperty;
 
-	var defLibConstructorBuilder = Module.GL_LIB.constructorBuilder;
+	var DefaultGL = Module.GL_LIB.Default;
 
 	// PRIVATE STATIC PROPERTIES
 	var _lib = {};
@@ -29,10 +30,7 @@ var ZGL_Class = function(Module){
 		this.gl = gl;
 	
 		// MAKE DEFAULT GL LIB
-		var glDefLib = new defLibConstructorBuilder(gl);
-		/* var ZGL_prototype = Object.getPrototypeOf(this);
-		Object.setPrototypeOf(glDefLib, ZGL_prototype);
-		Object.setPrototypeOf(this, glDefLib); */
+		var glDefLib = new DefaultGL(gl);
 		insert_prototype(this, glDefLib);
 
 		// LIB SCOPE SETTINGS
@@ -46,7 +44,9 @@ var ZGL_Class = function(Module){
 		Object.assign( this, _ext);
 	}
 
-	Object.defineProperties(ZGL, {'lib':{
+	add_objectStackProperty(ZGL, 'lib', _lib);
+	add_objectStackProperty(ZGL, 'ext', _ext);
+	/* Object.defineProperties(ZGL, {'lib':{
 		get : function(){ return _lib; },
 		set : function(val){
 			if(typeof val === 'object')
@@ -60,7 +60,7 @@ var ZGL_Class = function(Module){
 			if(typeof val === 'object')
 				Object.assign(_ext, val);
 		},
-	}});
+	}}); */
 
 	return ZGL;
 
@@ -93,6 +93,8 @@ var argsWrapper = function(args){
 	}else
 		this.contextType = 'webgl';
 }
+
+
 
 
 export {ZGL_Class};

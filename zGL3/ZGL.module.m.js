@@ -4,8 +4,8 @@
 import {ZGL_Class as get_ZGL_class} from './core/ZGL.class.m.js';
 
 // SYS LIB
-import {FuncScopeRedefiner} from './dependences/TinyTools/FuncScopeRedefiner.m.js';
-import {insert_prototype} from './dependences/TinyTools/insert_prototype.m.js';
+import {FuncScopeRedefiner}      from './dependences/TinyTools/FuncScopeRedefiner.m.js';
+import {ObjectPropertiesLib} from './dependences/TinyTools/ObjectPropertiesLib.m.js';
 
 // EXTENSIONS
 import {Math}     from './extensions/ZGL.ext.Math.m.js';
@@ -19,11 +19,12 @@ import {zGL_Default_lib}   from './libs/ZGL.lib.Default.m.js';
 
 var Module = {
 	SYS_LIB : {
-		FuncScopeRedefiner : FuncScopeRedefiner,
-		insert_prototype   : insert_prototype,
+		FuncScopeRedefiner      : FuncScopeRedefiner,
+		insert_prototype        : ObjectPropertiesLib.insert_prototype,
+		add_objectStackProperty : ObjectPropertiesLib.add_objectStackProperty,
 	},
 	GL_LIB : {
-		constructorBuilder : zGL_Default_lib,
+		Default : zGL_Default_lib,
 	}
 };
 var ZGL = get_ZGL_class(Module);
