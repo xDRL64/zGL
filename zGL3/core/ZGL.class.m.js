@@ -46,21 +46,7 @@ var ZGL_Class = function(Module){
 
 	add_objectStackProperty(ZGL, 'lib', _lib);
 	add_objectStackProperty(ZGL, 'ext', _ext);
-	/* Object.defineProperties(ZGL, {'lib':{
-		get : function(){ return _lib; },
-		set : function(val){
-			if(typeof val === 'object')
-				Object.assign(_lib, val);
-		},
-	}});
 
-	Object.defineProperties(ZGL, {'ext':{
-		get : function(){ return _ext; },
-		set : function(val){
-			if(typeof val === 'object')
-				Object.assign(_ext, val);
-		},
-	}}); */
 
 	return ZGL;
 

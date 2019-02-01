@@ -4,7 +4,7 @@
 import {ZGL_Class as get_ZGL_class} from './core/ZGL.class.m.js';
 
 // SYS LIB
-import {FuncScopeRedefiner}      from './dependences/TinyTools/FuncScopeRedefiner.m.js';
+import {FuncScopeRedefiner}  from './dependences/TinyTools/FuncScopeRedefiner.m.js';
 import {ObjectPropertiesLib} from './dependences/TinyTools/ObjectPropertiesLib.m.js';
 
 // EXTENSIONS
@@ -14,7 +14,7 @@ import {FBX}      from './extensions/ZGL.ext.FBX.m.js';
 import {Loader}   from './extensions/ZGL.ext.Loader.m.js';
 
 // DEFAULT GL LIB
-import {zGL_Default_lib}   from './libs/ZGL.lib.Default.m.js';
+import {zGL_Default_lib} from './libs/ZGL.lib.Default.m.js';
 
 
 var Module = {
@@ -47,10 +47,11 @@ var vbo = function(data){
 
 var LIBs = {
 	vbo99 : function(data){
-		var vBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
-		return vBuffer;
+		gl.clearColor(1, 0, 0, 1);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		var z = 0;
+		for(let i=0; i<100; i++)
+			z = (2**i) / (i+1);
 	},
 	vbo8 : function(data){
 		var vBuffer = gl.createBuffer();
@@ -65,6 +66,10 @@ var LIBs = {
 		return vBuffer;
 	}
 };
+
+
+
+
 
 ZGL.lib.vbo = vbo;
 ZGL.lib = LIBs;

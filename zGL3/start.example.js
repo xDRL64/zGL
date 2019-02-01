@@ -19,3 +19,40 @@ var afterLoading = function(){
 
 zgl.Loader.callback = afterLoading;
 zgl.Loader.load();
+
+
+
+var test_perfs = function(func, loopCount){
+	console.time();
+	for(let i=0; i<loopCount; i++)
+		func();
+	console.timeEnd();
+};
+
+var _eval = zgl.vbo99;
+var noeva = zgl.clear_viewport;
+
+test_perfs(_eval, 100000);
+test_perfs(noeva, 100000);
+console.log(' - - - ');
+
+test_perfs(_eval, 100000);
+test_perfs(noeva, 100000);
+console.log(' - - - ');
+
+test_perfs(_eval, 100000);
+test_perfs(noeva, 100000);
+console.log(' - - - ');
+
+test_perfs(_eval, 100000);
+test_perfs(noeva, 100000);
+console.log(' - - - ');
+
+test_perfs(_eval, 100000);
+test_perfs(noeva, 100000);
+console.log(' - - - ');
+
+test_perfs(_eval, 100000);
+test_perfs(noeva, 100000);
+console.log(' - - - ');
+

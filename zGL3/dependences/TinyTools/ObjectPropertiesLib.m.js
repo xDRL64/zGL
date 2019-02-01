@@ -24,7 +24,7 @@ function add_objectStackProperty (object, publicName, privateObjVar) {
 var ObjectPropertiesLib = {
 	insert_prototype        : insert_prototype,
 	add_objectStackProperty : add_objectStackProperty,
-}
+};
 
 
 
@@ -32,5 +32,6 @@ var ObjectPropertiesLib = {
 export {
 	insert_prototype,
 	add_objectStackProperty,
+
 	ObjectPropertiesLib,
 };
