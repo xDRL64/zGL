@@ -1,3 +1,5 @@
+"use strict";
+
 import {Math as math} from './ZGL.ext.Math.m.js';
 
 function zGL_Geometry_ext (zgl){
@@ -114,8 +116,6 @@ function zGL_Geometry_ext (zgl){
 	};
 
 };
-
-
 
 var Geometry = new zGL_Geometry_ext();
 

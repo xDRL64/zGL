@@ -1,3 +1,5 @@
+"use strict";
+
 function zGL_Math_ext (zgl){
 	
 	this.degToRad = function(angle){

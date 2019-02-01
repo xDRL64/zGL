@@ -1,23 +1,38 @@
 "use strict";
 
-import {ZGL_Class} from './core/ZGL.class.m.js';
+// CLASS
+import {ZGL_Class as get_ZGL_class} from './core/ZGL.class.m.js';
 
+// SYS LIB
 import {FuncScopeRedefiner} from './dependences/TinyTools/FuncScopeRedefiner.m.js';
+import {insert_prototype} from './dependences/TinyTools/insert_prototype.m.js';
 
+// EXTENSIONS
 import {Math}     from './extensions/ZGL.ext.Math.m.js';
 import {Geometry} from './extensions/ZGL.ext.Geometry.m.js';
+import {FBX}      from './extensions/ZGL.ext.FBX.m.js';
+import {Loader}   from './extensions/ZGL.ext.Loader.m.js';
 
+// DEFAULT GL LIB
+import {zGL_Default_lib}   from './libs/ZGL.lib.Default.m.js';
 
 
 var Module = {
 	SYS_LIB : {
 		FuncScopeRedefiner : FuncScopeRedefiner,
+		insert_prototype   : insert_prototype,
+	},
+	GL_LIB : {
+		constructorBuilder : zGL_Default_lib,
 	}
 };
-var ZGL = ZGL_Class(Module);
+var ZGL = get_ZGL_class(Module);
 
-
-
+// ADD EXTENSIONS
+ZGL.ext.Math     = Math;
+ZGL.ext.Geometry = Geometry;
+ZGL.ext.FBX      = FBX;
+ZGL.ext.Loader   = Loader;
 
 
 
@@ -54,10 +69,9 @@ ZGL.lib.vbo = vbo;
 ZGL.lib = LIBs;
 delete ZGL.lib.vbo8;
 
-debugger
 
-ZGL.ext.Math = Math;
-ZGL.ext.Geometry = Geometry;
+
+
 
 
 

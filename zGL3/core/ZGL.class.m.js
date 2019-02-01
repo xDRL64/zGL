@@ -4,6 +4,9 @@ var ZGL_Class = function(Module){
 
 	// PRIVATE STATIC METHODS
 	var FuncScopeRedefiner = Module.SYS_LIB.FuncScopeRedefiner;
+	var insert_prototype   = Module.SYS_LIB.insert_prototype;
+
+	var defLibConstructorBuilder = Module.GL_LIB.constructorBuilder;
 
 	// PRIVATE STATIC PROPERTIES
 	var _lib = {};
@@ -25,6 +28,13 @@ var ZGL_Class = function(Module){
 		var gl = this.domElem.getContext(this.contextType);
 		this.gl = gl;
 	
+		// MAKE DEFAULT GL LIB
+		var glDefLib = new defLibConstructorBuilder(gl);
+		/* var ZGL_prototype = Object.getPrototypeOf(this);
+		Object.setPrototypeOf(glDefLib, ZGL_prototype);
+		Object.setPrototypeOf(this, glDefLib); */
+		insert_prototype(this, glDefLib);
+
 		// LIB SCOPE SETTINGS
 		let libScope = {
 			gl  : gl,
