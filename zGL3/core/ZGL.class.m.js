@@ -1,52 +1,26 @@
 "use strict";
 
+var ZGL_Class = function(Module){
 
-var ZGL_Class = function(){
-	var test = this.constructor.Module.SYS_LIB.FuncScopeRedefiner;
-	debugger
-};
+	// PRIVATE STATIC METHODS
+	var FuncScopeRedefiner = Module.SYS_LIB.FuncScopeRedefiner;
 
-ZGL_Class.Module = {
-	SYS_LIB : null,
-};
-
-
-function tmp()
-{
-	//var _lib = this.ZGL_Initializer.ZGL_lib;
+	// PRIVATE STATIC PROPERTIES
 	var _lib = {};
-	//var _ext = this.ZGL_Initializer.ZGL_ext;
 	var _ext = {};
-	
-
-	//var FuncScopeRedefiner = this.ZGL_Initializer.ZGL_SYS_LIB.FuncScopeRedefiner;
-
-	//var argsWrapper = this.ZGL_Initializer.ZGL_SYS_LIB.argsWrapper;
-	var argsWrapper = function(){};
-
-	/* var inject_extensions = FuncScopeRedefiner.set(
-		this.ZGL_Initializer.ZGL_SYS_LIB.inject_extensions,
-		{_ext:_ext, FuncScopeRedefiner:FuncScopeRedefiner}
-	).get_result(); */
-	var inject_extensions = FuncScopeRedefiner.set(
-		function(){},
-		{_ext:{}, FuncScopeRedefiner:FuncScopeRedefiner}
-	).get_result() || {};
-
-
 
 	// ZGL CLASS
 	/**
 	 * @param canvas  : ('elem':HTMLCanvasElement || 'cssID':string)
 	 * @param context : string
 	 */
-	var ZGL = function( /* See param Instruction */ ){
+	function ZGL ( /* See param Instruction */ ) {
 
 		// SET :
 		// --> this.domElem
 		// --> this.contextType
 		argsWrapper.call(this, arguments);
-		
+
 		// WEBGL API CONTEXT
 		var gl = this.domElem.getContext(this.contextType);
 		this.gl = gl;
@@ -58,10 +32,9 @@ function tmp()
 		};
 		Object.assign( this, FuncScopeRedefiner.set(_lib, libScope).get_result() );
 
-		// INJECT EXTENSIONS
-		inject_extensions.call(this);
-	};
-
+		// ADD EXTENSIONS
+		Object.assign( this, _ext);
+	}
 
 	Object.defineProperties(ZGL, {'lib':{
 		get : function(){ return _lib; },
@@ -78,11 +51,40 @@ function tmp()
 				Object.assign(_ext, val);
 		},
 	}});
-	
 
-	//ZGL.EXTENSION_CORE_LIB = this.ZGL_Initializer.EXTENSION_CORE_LIB;
-	ZGL.EXTENSION_CORE_LIB = {};
+	return ZGL;
+
+};
+
+
+var argsWrapper = function(args){
+	
+	// CHECK 1ST ARG : CANVAS DOM ELEMENT
+	let arg = args[0];
+	if(arg instanceof HTMLCanvasElement)
+		this.domElem = arg;
+	else if(typeof arg === 'string'){
+		let elem = document.getElementById(arg);
+		if(elem instanceof HTMLCanvasElement)
+			this.domElem = elem;
+		else
+			this.domElem = document.createElement('CANVAS');
+	}else
+		this.domElem = document.createElement('CANVAS');
+	
+	// CHECK 2ND ARG : WEBGL CONTEXT TYPE
+	arg = args[1];
+	if(typeof arg === 'string'){
+		let goodContextType = false;
+		goodContextType += arg=='webgl';
+		goodContextType += arg=='webgl2';
+		goodContextType += arg=='experimental-webgl';
+		this.contextType = goodContextType? arg : 'webgl';
+	}else
+		this.contextType = 'webgl';
 }
+
+
 export {ZGL_Class};
 
 
