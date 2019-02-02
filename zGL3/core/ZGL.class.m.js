@@ -7,7 +7,7 @@ var ZGL_Class = function(Module){
 	var insert_prototype        = Module.SYS_LIB.insert_prototype;
 	var add_objectStackProperty = Module.SYS_LIB.add_objectStackProperty;
 
-	var DefaultGL = Module.GL_LIB.Default;
+	var gfxLibs = Module.GFX_LIBS;
 
 	// PRIVATE STATIC PROPERTIES
 	var _lib = {};
@@ -30,8 +30,9 @@ var ZGL_Class = function(Module){
 		this.gl = gl;
 	
 		// MAKE DEFAULT GL LIB
-		var glDefLib = new DefaultGL(gl);
-		insert_prototype(this, glDefLib);
+		var GfxLib = get_GfxLib.call(this, gfxLibs);
+		var gfxLib = new GfxLib(gl);
+		insert_prototype(this, gfxLib);
 
 		// LIB SCOPE SETTINGS
 		let libScope = {
@@ -80,6 +81,13 @@ var argsWrapper = function(args){
 		this.contextType = 'webgl';
 }
 
+var get_GfxLib = function(gfxLibs){
+	return this.contextType==='webgl'||this.contextType==='experimental-webgl'
+		? gfxLibs.WebGL
+		: this.contextType==='webgl2'
+			? gfxLibs.WebGL2
+			: console.error("zGL fatal err -> get_GfxLib : contextType is not defined");
+};
 
 
 

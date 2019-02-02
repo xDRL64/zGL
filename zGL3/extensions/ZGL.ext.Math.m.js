@@ -59,7 +59,7 @@ function zGL_Math_ext (zgl){
 
 };
 
-var Math = new zGL_Math_ext();
+var math = new zGL_Math_ext();
 
-export {Math};
+export {math as Math};
 

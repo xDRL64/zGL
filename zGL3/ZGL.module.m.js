@@ -5,6 +5,7 @@ import {ZGL_Class as get_ZGL_class} from './core/ZGL.class.m.js';
 
 // SYS LIB
 import {FuncScopeRedefiner}  from './dependences/TinyTools/FuncScopeRedefiner.m.js';
+window.FuncScopeRedefiner = FuncScopeRedefiner;
 import {ObjectPropertiesLib} from './dependences/TinyTools/ObjectPropertiesLib.m.js';
 
 // EXTENSIONS
@@ -13,8 +14,8 @@ import {Geometry} from './extensions/ZGL.ext.Geometry.m.js';
 import {FBX}      from './extensions/ZGL.ext.FBX.m.js';
 import {Loader}   from './extensions/ZGL.ext.Loader.m.js';
 
-// DEFAULT GL LIB
-import {zGL_Default_lib} from './libs/ZGL.lib.Default.m.js';
+// DEFAULT WEBGL LIB
+import {zGL_WebGL_lib} from './libs/ZGL.lib.WebGL.m.js';
 
 
 var Module = {
@@ -23,8 +24,8 @@ var Module = {
 		insert_prototype        : ObjectPropertiesLib.insert_prototype,
 		add_objectStackProperty : ObjectPropertiesLib.add_objectStackProperty,
 	},
-	GL_LIB : {
-		Default : zGL_Default_lib,
+	GFX_LIBS : {
+		WebGL : zGL_WebGL_lib,
 	}
 };
 var ZGL = get_ZGL_class(Module);
