@@ -431,6 +431,5 @@ function zGL_FBX_ext (zgl){
 	
 };
 
-var FBX = new zGL_FBX_ext();
-
-export {FBX};
+var _ext = new zGL_FBX_ext();
+export { _ext as FBX };

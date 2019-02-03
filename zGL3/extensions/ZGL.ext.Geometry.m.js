@@ -117,6 +117,5 @@ function zGL_Geometry_ext (zgl){
 
 };
 
-var Geometry = new zGL_Geometry_ext();
-
-export {Geometry};
+var _ext = new zGL_Geometry_ext();
+export { _ext as Geometry };

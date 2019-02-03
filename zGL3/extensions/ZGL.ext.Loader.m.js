@@ -91,6 +91,5 @@ function zGL_Loader_ext (zgl){
 	
 };
 
-var Loader = new zGL_Loader_ext();
-
-export {Loader};
+var _ext = new zGL_Loader_ext();
+export { _ext as Loader };

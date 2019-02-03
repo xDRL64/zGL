@@ -2,20 +2,19 @@ var canvasElem = document.getElementById('viewport');
 
 
 zgl = new zGL(canvasElem);
+zgl2 = new zGL(canvasElem);
 
 zgl.Loader.addToLoading("myFbx", "any", "teapot.fbx");
 zgl.Loader.addToLoading("myImage","img","./TEX64.png");
 
 var afterLoading = function(){
 
-	var fbx = zgl.FBX.parse(zgl.Loader.data.myFbx);
+	/* var fbx = zgl.FBX.parse(zgl.Loader.data.myFbx);
 	console.log(fbx);
 
 	var zglMesh = zgl.FBX.import(fbx, 'Utah_Teapot_Quads');
-	console.log(zglMesh);
+	console.log(zglMesh); */
 
-	//props = zgl.FBX.get_availableProps(zglMesh);
-	//console.log(props);
 
 	
 	gl.clearColor(1,1,0,1);
@@ -27,7 +26,7 @@ var afterLoading = function(){
 	var vBuffer = zgl.buffer_f32A(vData);
 	var nBuffer = zgl.buffer_f32A(nData);
 	var uBuffer = zgl.buffer_f32A(uData);
-	var tBuffer= zgl.buffer_ui16A(tData);
+	var tBuffer = zgl.buffer_ui16A(tData);
 	
 	// UNIFORMS DATA
 	var canvasAspect = zgl.domElem.width / zgl.domElem.height;
@@ -66,7 +65,25 @@ var afterLoading = function(){
 
 	// DRAWING
     zgl.start_shader(shaderStarter);
-   	zgl.draw_triangles(tBuffer);
+	zgl.draw_triangles(tBuffer);
+	
+	var xRot = 0;
+	var yRot = 0;
+	var loop = function(){
+		requestAnimationFrame(loop);
+
+		//modelMatPair.data = math.mul_CM( math.makeRotationX(xRot), math.mat_trans40z() );
+		let yxRotMat = math.mul_CM( math.makeRotationY(yRot), math.makeRotationX(xRot) );
+		modelMatPair.data = math.mul_CM( math.mat_trans40z(), yxRotMat );
+		xRot += 0.1;
+		yRot += 0.1;
+
+		zgl.start_shader(shaderStarter);
+		zgl.draw_triangles(tBuffer);
+		
+	};
+	loop();
+
 };
 
 

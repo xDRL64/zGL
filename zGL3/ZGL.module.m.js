@@ -13,6 +13,7 @@ import {Math}     from './extensions/ZGL.ext.Math.m.js';
 import {Geometry} from './extensions/ZGL.ext.Geometry.m.js';
 import {FBX}      from './extensions/ZGL.ext.FBX.m.js';
 import {Loader}   from './extensions/ZGL.ext.Loader.m.js';
+import {Shader}   from './extensions/ZGL.ext.Shader.m.js';
 
 // DEFAULT WEBGL LIB
 import {zGL_WebGL_lib} from './libs/ZGL.lib.WebGL.m.js';
@@ -35,6 +36,7 @@ ZGL.ext.Math     = Math;
 ZGL.ext.Geometry = Geometry;
 ZGL.ext.FBX      = FBX;
 ZGL.ext.Loader   = Loader;
+ZGL.ext.Shader   = Shader;
 
 
 
