@@ -7,6 +7,7 @@ zImporter.FBX = function(FBX, objName){
     return zGLmesh;
 };
 
+// get_zglDirectMesh34
 zImporter.get_directFromFBXmesh = function(FBXmesh){
     var o = {v:[], c:[], u:[], n:[], f:FBXmesh.f, t:[]};
     var vertCountByFace = 0;
