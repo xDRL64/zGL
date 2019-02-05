@@ -91,12 +91,15 @@ zGLSL.colTexSmoothLighting = function(data){
         attribute vec2 aTextureCoord;
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
+        uniform float time;
         varying vec3 xyz;
         varying vec4 col;
         varying vec3 norm;
         varying highp vec2 vTextureCoord;
         void main(void) {
-            vec4 XYZ = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			vec3 v = aVertexPosition;
+			v.x += sin(2.0 * v.y + time) * 0.5;
+            vec4 XYZ = uPMatrix * uMVMatrix * vec4(v, 1.0);
             //xyz = vec3(XYZ[0], XYZ[1], XYZ[2]);
 			xyz = aVertexPosition.xyz;
 			col = vec4(aVertexColor,1);

@@ -18,28 +18,28 @@ function zGL_Shader_ext (zgl){
 		var vs_out        = 'gl_Position = _m * vec4(_v, 1.0);';
 			   
 		var fs_precision  = 'precision highp float;';
-		var fs_uniforms   = 'uniform mat4 _m;';
+		var fs_uniforms   = '';
 		var fs_varying    = '';
 		var fs_color      = ''; 
 		var fs_out        = 'gl_FragColor = vec4(';
 
 
 		if(o.color){
-			vs_attributes += 'attribute vec3 _c;';
-			vs_varying    += 'varying vec3 _c_;';
+			vs_attributes += 'attribute vec4 _c;';
+			vs_varying    += 'varying vec4 _c_;';
 			vs_out        += '_c_ = _c;';
 
-			fs_varying    += 'varying vec3 _c_;';
+			fs_varying    += 'varying vec4 _c_;';
 			fs_color      += '_c_';
 		}
 
 		if(o.texture === 'uv'){
-			vs_attributes += 'attribute vec3 _u;';
-			vs_varying    += 'varying vec3 _u_;';
+			vs_attributes += 'attribute vec2 _u;';
+			vs_varying    += 'varying vec2 _u_;';
 			vs_out        += '_u_ = _u;';
 			
 			fs_uniforms   += 'uniform sampler2D _t;';
-			fs_varying    += 'varying vec3 _u_;';
+			fs_varying    += 'varying vec2 _u_;';
 			fs_color      += (fs_color.length?'*':'')+'texture2D(_t, _u_)';
 		}
 

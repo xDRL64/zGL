@@ -106,6 +106,7 @@ function zGL_WebGL_lib (gl) {
 		var shader = gl.createShader(type);
 		gl.shaderSource(shader, code);
 		gl.compileShader(shader);
+		console.log(gl.getShaderInfoLog(shader));
 		return shader;
 	};
 	
@@ -133,7 +134,7 @@ function zGL_WebGL_lib (gl) {
 	
 	// for : shader attribute names
 	// get : shader attribute index
-	function attributes(prog, names){
+	function get_attributes(prog, names){
 		var refs = {};
 		for(var i=0; i<names.length; i++)
 			refs[names[i]] = gl.getAttribLocation(prog, names[i]);
@@ -142,7 +143,7 @@ function zGL_WebGL_lib (gl) {
 	
 	// for : shader uniform names
 	// get : shader uniform index
-	function uniforms(prog, names){
+	function get_uniforms(prog, names){
 		var refs = {};
 		for(var i=0; i<names.length; i++)
 			refs[names[i]] = gl.getUniformLocation(prog, names[i]);
@@ -332,6 +333,131 @@ function zGL_WebGL_lib (gl) {
 	};
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+	// attribute dataInfo : size || {size, type, normalized, stride, offset}
+	// uniform dataInfo : dataType/TextureId
+	function _ShaderInput(location, dataInfo){
+		this.location = location;
+		this.dataInfo = dataInfo;
+		var data = null;
+		Object.defineProperty(this, 'data', {
+			get : () => data,
+			set : (value) => data = value
+		});
+	}
+	var _Attribute = (function(){
+		function _Attribute(location, dataInfo){
+
+			_ShaderInput.apply(this, arguments);
+	
+			if(typeof dataInfo === 'object'){
+				this.size       = dataInfo.size       || 3;
+				this.type       = dataInfo.type       || gl.FLOAT;
+				this.normalized = dataInfo.normalized || false;
+				this.stride     = dataInfo.stride     || 0;
+				this.offset     = dataInfo.offset     || 0;
+			}else{
+				this.size       = dataInfo;
+				this.type       = gl.FLOAT;
+				this.normalized = false;
+				this.stride     = 0;
+				this.offset     = 0;
+			}
+
+			this.activateds = this.constructor.activateds;
+
+			this.start = this.start;
+		}
+		_Attribute.prototype = Object.create(_ShaderInput.prototype);
+		_Attribute.prototype.constructor = _Attribute;
+		Object.setPrototypeOf(_Attribute, _ShaderInput);
+
+		_Attribute.activateds = new Array(256);
+		_Attribute.activateds.fill(false);
+
+		_Attribute.prototype.start = function(){
+			// verifier si l'interpolation est deja activée
+			var firstDisabled = this.activateds.indexOf(false);
+			//if()
+			// bind data buffer
+			// gl.vertexAttribPointer(this.location, this.size, this.type, this.normalized, this.stride, this.offset);
+		}
+
+		return _Attribute;
+	})();
+
+	function _Uniform(location, dataInfo){
+		_ShaderInput.apply(this, arguments);
+	}
+	_Uniform.prototype = Object.create(_ShaderInput.prototype);
+	_Uniform.prototype.constructor = _Uniform;
+	Object.setPrototypeOf(_Uniform, _ShaderInput);
+
+
+	/* codes      = { vertex:string, fragment:string }
+	   attributes = { name:dataInfo, ..., ..., ...,  }
+	   uniforms   = { name:dataInfo, ..., ..., ...,  } */
+	// attribute dataInfo : size || {size, type, normalized, stride, offset}
+	// uniform dataInfo : dataType/TextureId 
+	function ShaderObject(codes={}, attributes={}, uniforms={}){
+		
+		var vBin     = vBuild(codes.vertex);
+		var fBin     = fBuild(codes.fragment);
+		this.prog    = shader(vBin,fBin);
+
+		var A_names = Object.keys(attributes);
+		var U_names = Object.keys(uniforms);
+
+		var A_locations = get_attributes(this.prog, A_names);
+		var U_locations = get_uniforms(this.prog, U_names);
+
+		this.attributes = [];
+		A_names.forEach( (name)=>{
+			this.attributes[name] = new _Attribute(A_locations[name], attributes[name]);
+			this.attributes.push( this.attributes[name] );
+		} );
+
+		this.uniforms = [];
+		U_names.forEach( (name)=>{
+			this.uniforms[name] = new _Uniform(U_locations[name], uniforms[name]);
+			this.uniforms.push( this.uniforms[name] );
+		} );
+	}
+	ShaderObject.prototype.start = function(){
+
+	}
+
+
+	this.ShaderObject = ShaderObject;
+
+
+
+
+
+
+
+
+
+
+
+
+
 this.buffer_f32A       = buffer_f32A;
 this.buffer_ui16A      = buffer_ui16A;
 //this._needsMipmap      = _needsMipmap;
@@ -342,8 +468,8 @@ this.tex_2D            = tex_2D;
 this.vBuild            = vBuild;
 this.fBuild            = fBuild;
 this.shader            = shader;
-this.attributes        = attributes;
-this.uniforms          = uniforms;
+this.get_attributes    = get_attributes;
+this.get_uniforms      = get_uniforms;
 this.connect_attrib    = connect_attrib;
 this.send_uniforms     = send_uniforms;
 this.link_textures     = link_textures;

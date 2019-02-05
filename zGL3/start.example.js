@@ -1,13 +1,22 @@
 var canvasElem = document.getElementById('viewport');
 
-
 zgl = new zGL(canvasElem);
-zgl2 = new zGL(canvasElem);
 
 zgl.Loader.addToLoading("myFbx", "any", "teapot.fbx");
 zgl.Loader.addToLoading("myImage","img","./TEX64.png");
 
+var shaderCodes = zgl.Shader.generate_standard({color:true, texture:'uv'});
+var shaderObj   = new zgl.ShaderObject(shaderCodes, {_v:3, _c:3, _u:2}, {_m:'Matrix4vf', _t:0});
+shaderCodes.debug();
+console.log(shaderObj);
+
 var afterLoading = function(){
+
+	gl.clearColor(1,1,0,1);
+	gl.enable(gl.DEPTH_TEST);
+	gl.depthFunc(gl.LEQUAL);
+	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
+
 
 	var fbxObj = zgl.FBX.parse(zgl.Loader.data.myFbx);
 	console.log(fbxObj);
@@ -18,13 +27,14 @@ var afterLoading = function(){
 	var directMesh3 = zgl.Geometry.triangulate_zglDirectMesh34(directMesh34);
 	console.log(directMesh3);
 
-
-
+	// ATTRIBUTES DATA
+	var vBuffer = zgl.buffer_f32A(directMesh3.v);
+	var nBuffer = zgl.buffer_f32A(directMesh3.n);
+	var uBuffer = zgl.buffer_f32A(directMesh3.u);
 	
-	gl.clearColor(1,1,0,1);
-	gl.enable(gl.DEPTH_TEST);
-	gl.depthFunc(gl.LEQUAL);
-	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
+	var cBuffer = zgl.buffer_f32A(directMesh3.v);
+
+
 
 	// ATTRIBUTES DATA
 	//var vBuffer = zgl.buffer_f32A(vData);
@@ -35,11 +45,7 @@ var afterLoading = function(){
 	//var cData = vData;
 	//var cBuffer = zgl.buffer_f32A(cData);
 	
-	var vBuffer = zgl.buffer_f32A(directMesh3.v);
-	var nBuffer = zgl.buffer_f32A(directMesh3.n);
-	var uBuffer = zgl.buffer_f32A(directMesh3.u);
-	
-	var cBuffer = zgl.buffer_f32A(directMesh3.v);
+
 
 
 
@@ -58,8 +64,8 @@ var afterLoading = function(){
     var vBin     = zgl.vBuild(shader.vertex);
     var fBin     = zgl.fBuild(shader.fragment);
 	var sProg    = zgl.shader(vBin,fBin);
-    var attribs  = zgl.attributes(sProg, ["aVertexPosition","aNormalDirection","aTextureCoord", 'aVertexColor']);
-    var uniforms = zgl.uniforms(sProg, ["uMVMatrix","uPMatrix","uSampler","oneFloat"]);
+    var attribs  = zgl.get_attributes(sProg, ["aVertexPosition","aNormalDirection","aTextureCoord", 'aVertexColor']);
+    var uniforms = zgl.get_uniforms(sProg, ["uMVMatrix","uPMatrix","uSampler","oneFloat", 'time']);
 
 	// SHADERS SETTINGS 
     var verticesPair = new zgl.ShaderPair(attribs["aVertexPosition"],  vBuffer);
@@ -70,7 +76,8 @@ var afterLoading = function(){
     var oneFloatPair = new zgl.ShaderPair(uniforms["oneFloat"],        1.0);
 	var texturePair  = new zgl.ShaderPair(uniforms["uSampler"],        tex2D);
 	
-	var colorsPair   = new zgl.ShaderPair(attribs["aVertexColor"],  cBuffer);
+	var timePair     = new zgl.ShaderPair(uniforms["time"],            Date.now());
+	var colorsPair   = new zgl.ShaderPair(attribs["aVertexColor"],     cBuffer);
 
     var shaderStarter = zgl.shaderStarter({
         prog  : sProg,
@@ -78,7 +85,7 @@ var afterLoading = function(){
         NORM  : [normalsPair],
         UV    : [uvCoordsPair],
         MAT4  : [modelMatPair,projMatPair],
-        FLOAT : [oneFloatPair],
+        FLOAT : [oneFloatPair, timePair],
 		TEX   : [texturePair],
 		
 		COL   : [colorsPair]
@@ -90,6 +97,7 @@ var afterLoading = function(){
 	
 	var xRot = 0;
 	var yRot = 0;
+	var startTime = Date.now();
 	var loop = function(){
 		requestAnimationFrame(loop);
 
@@ -99,7 +107,13 @@ var afterLoading = function(){
 		xRot += 0.005;
 		yRot += 0.005;
 
+		timePair.data =( Date.now() - startTime) / 100;
+		
 		zgl.start_shader(shaderStarter);
+		
+		/* if(timePair.data > Math.PI/2)
+			startTime = Date.now(); */
+
 
 		//zgl.draw_triangles(tBuffer);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
