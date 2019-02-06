@@ -5,10 +5,13 @@ zgl = new zGL(canvasElem);
 zgl.Loader.addToLoading("myFbx", "any", "teapot.fbx");
 zgl.Loader.addToLoading("myImage","img","./TEX64.png");
 
-var shaderCodes = zgl.Shader.generate_standard({color:true, texture:'uv'});
-var shaderObj   = new zgl.ShaderObject(shaderCodes, {_v:3, _c:3, _u:2}, {_m:'Matrix4vf', _t:0});
-shaderCodes.debug();
-console.log(shaderObj);
+
+
+
+
+
+
+
 
 var afterLoading = function(){
 
@@ -45,6 +48,29 @@ var afterLoading = function(){
 	//var cData = vData;
 	//var cBuffer = zgl.buffer_f32A(cData);
 	
+
+
+
+	// SWITCHING SHADER TEST
+	var shaderCodes = zgl.Shader.generate_standard({color:true, texture:'uv'});
+	window.shaderObj   = new zgl.ShaderObject(shaderCodes, {_v:3, _c:3, _u:2}, {_m:'mat4', _t:'sampler2D'});
+		shaderObj.attributes._v.data = vBuffer;
+		shaderObj.attributes._c.data = cBuffer;
+		shaderObj.attributes._u.data = uBuffer;
+		shaderObj.uniforms._m.data = math.ColMat_proj(90, zgl.domElem.width/zgl.domElem.height, 0.001, 1000);
+		shaderObj.uniforms._t.data = zgl.tex_2D(Loader.data.myImage, zgl.texSettings({mipmap:false}));
+	shaderObj.start();
+
+
+	var shaderCodes2 = zgl.Shader.generate_standard({});
+	window.shaderObj2   = new zgl.ShaderObject(shaderCodes2, {_v:3,}, {_m:'mat4'});
+		shaderObj2.attributes._v.data = vBuffer;
+		shaderObj2.uniforms._m.data = math.ColMat_proj(90, zgl.domElem.width/zgl.domElem.height, 0.001, 1000);
+	shaderObj2.start();
+
+
+	shaderObj.start();
+
 
 
 
