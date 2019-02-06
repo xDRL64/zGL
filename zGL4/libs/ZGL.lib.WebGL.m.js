@@ -1,5 +1,9 @@
 "use strict";
 
+import { zGL_shader_lib as get_shader_lib } from './zGL/shader.lib.m.js';
+
+import { zGL_ShaderObject_Class as get_ShaderObject_class } from './ShaderObject.class/ZGL.ShaderObject.class.m.js';
+
 function zGL_WebGL_lib (gl) {
 
 
@@ -100,7 +104,15 @@ function zGL_WebGL_lib (gl) {
 	
 	
 	
-	
+
+
+
+
+
+
+
+
+	/* 
 	// for : internal zGL
 	function _build(code,type){
 		var shader = gl.createShader(type);
@@ -149,7 +161,20 @@ function zGL_WebGL_lib (gl) {
 			refs[names[i]] = gl.getUniformLocation(prog, names[i]);
 		return refs;
 	};
-	
+	 */
+
+	var shaderLib = get_shader_lib(gl)
+
+	var _build         = shaderLib._build;
+	var vBuild         = shaderLib.vBuild;
+	var fBuild         = shaderLib.fBuild;
+	var shader         = shaderLib.shader;
+	var get_attributes = shaderLib.get_attributes;
+	var get_uniforms   = shaderLib.get_uniforms;
+
+
+
+
 	// for : enable attribute interpolation
 	function connect_attrib(refAttrib, refData, sizeBytes, stepBytes=0, offsetBytes=0){
 		gl.bindBuffer(gl.ARRAY_BUFFER, refData);
@@ -334,293 +359,7 @@ function zGL_WebGL_lib (gl) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-	// attribute dataInfo : size || {size, type, normalized, stride, offset}
-	// uniform dataInfo : dataType:{'int', 'float', 'ivec2', 'vec2', 'ivec3', 'vec3', 'ivec4', 'vec4', 'mat2', 'mat3', 'mat4', 'sampler2D'}
-	function _ShaderInput(location, dataInfo){
-		this.location = location;
-		this.dataInfo = dataInfo;
-		var data = null;
-		Object.defineProperty(this, 'data', {
-			get : () => data,
-			set : (value) => data = value
-		});
-	}
-
-
-
-
-	var _Attribute = (function(){
-
-		// class
-		//
-
-		function _Attribute(location, dataInfo){
-
-			// heritage
-			// -> this.location
-			// -> this.dataInfo
-			// -> this.data(get/set)
-			_ShaderInput.apply(this, arguments);
-	
-			// code
-			if(typeof dataInfo === 'object'){
-				this.size       = dataInfo.size       || 3;
-				this.type       = dataInfo.type       || gl.FLOAT;
-				this.normalized = dataInfo.normalized || false;
-				this.stride     = dataInfo.stride     || 0;
-				this.offset     = dataInfo.offset     || 0;
-			}else{
-				this.size       = dataInfo;
-				this.type       = gl.FLOAT;
-				this.normalized = false;
-				this.stride     = 0;
-				this.offset     = 0;
-			}
-
-			this.start = this.start;
-		}
-
-		// heritage
-		//
-
-		_Attribute.prototype = Object.create(_ShaderInput.prototype);
-		_Attribute.prototype.constructor = _Attribute;
-		Object.setPrototypeOf(_Attribute, _ShaderInput);
-
-		// public static props
-		//
-
-		_Attribute.activateds = new Array(256);
-		_Attribute.activateds.fill(false);
-
-		// public methods
-		//
-
-		_Attribute.prototype.start = function(){
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.data);
-			gl.vertexAttribPointer(this.location, this.size, this.type, this.normalized, this.stride, this.offset);
-		}
-
-		return _Attribute;
-	})();
-
-
-
-
-	
-	var _Uniform = (function(){
-		
-		// class
-		//
-
-		function _Uniform(location, dataInfo){
-
-			// heritage
-			// -> this.location
-			// -> this.dataInfo
-			// -> this.data(get/set)
-			_ShaderInput.apply(this, arguments);
-
-			// private props
-			//
-			
-			var _GL = _list[dataInfo];
-			var args = [];
-			args.push(location);
-			if(dataInfo.includes("mat"))
-				args.push(false);
-			
-				
-			
-			this.start = _start.bind(this, _GL, args);
-		}
-
-		// heritage
-		//
-
-		_Uniform.prototype = Object.create(_ShaderInput.prototype);
-		_Uniform.prototype.constructor = _Uniform;
-		Object.setPrototypeOf(_Uniform, _ShaderInput);
-
-		// public methods
-		//
-
-
-
-		// private methods
-		//
-
-		function _start(_GL, args){
-			
-			args[_GL.iLastArg] = _GL.format(this.data);
-			_GL.method.apply(gl, args);
-		}
-		
-		function _connect_texture(location, data){
-			var iTex = _Uniform.iTexture;
-			//gl.activeTexture(gl.TEXTURE+(iTex<10?'0':'') + iTex);
-			gl.activeTexture(gl.TEXTURE0 + iTex);
-			_Uniform.iTexture++;
-			gl.bindTexture(gl.TEXTURE_2D, data);
-			gl.uniform1i(location, iTex);
-		}
-
-		// public satic props
-		//
-		_Uniform.iTexture = 0;
-
-		// private satic props
-		//
-		var _fArray = data=>new Float32Array(data);
-		var _iArray = data=>new Int32Array(data);
-		var _1Value = data=>data;
-		var _list = {
-			'float'     : { method:gl.uniform1f,        iLastArg:1, format:_1Value },
-			'int'       : { method:gl.uniform1i,        iLastArg:1, format:_1Value },
-			'vec2'      : { method:gl.uniform2fv,       iLastArg:1, format:_fArray },
-			'ivec2'     : { method:gl.uniform2iv,       iLastArg:1, format:_iArray },
-			'vec3'      : { method:gl.uniform3fv,       iLastArg:1, format:_fArray },
-			'ivec3'     : { method:gl.uniform3iv,       iLastArg:1, format:_iArray },
-			'vec4'      : { method:gl.uniform4fv,       iLastArg:1, format:_fArray },
-			'ivec4'     : { method:gl.uniform4iv,       iLastArg:1, format:_iArray },
-			'mat2'      : { method:gl.uniformMatrix2fv, iLastArg:2, format:_fArray },
-			'mat3'      : { method:gl.uniformMatrix3fv, iLastArg:2, format:_fArray },
-			'mat4'      : { method:gl.uniformMatrix4fv, iLastArg:2, format:_fArray },
-			'sampler2D' : { method:_connect_texture,    iLastArg:1, format:_1Value }
-		}
-		
-
-		return _Uniform;
-	})();
-
-
-
-	// ShaderObject Using :
-	
-	// 0. Create instance : give glsl codes, attributes to get, uniforms to get
-
-	// 1. change the attribs/uniforms data value before re-/starting ShaderObject to draw
-
-	// 2. run the shaderInstance.start method
-
-	// 3. to draw
-
-	// And So On...
-
-	// 4. change the attribs/uniforms data value before re-/starting ShaderObject to draw
-
-	// 5. run the shaderInstance.start method
-
-	// 6. to draw
-
-
-	/* codes      = { vertex:string, fragment:string }
-	   attributes = { name:dataInfo, ..., ..., ...,  }
-	   uniforms   = { name:dataInfo, ..., ..., ...,  } */
-	// attribute dataInfo : size || {size, type, normalized, stride, offset}
-	// uniform dataInfo : dataType/TextureId
-	var ShaderObject = (function(){
-
-		// class
-		//
-		function ShaderObject(codes={}, attributes={}, uniforms={}){
-			
-			var vBin = vBuild(codes.vertex);
-			var fBin = fBuild(codes.fragment);
-
-			this.prog = shader(vBin,fBin);
-	
-			var A_names = Object.keys(attributes);
-			var U_names = Object.keys(uniforms);
-	
-			var A_locations = get_attributes(this.prog, A_names);
-			var U_locations = get_uniforms(this.prog, U_names);
-	
-			this.attributes = [];
-			A_names.forEach( (name)=>{
-				this.attributes[name] = new _Attribute(A_locations[name], attributes[name]);
-				this.attributes.push( this.attributes[name] );
-			} );
-	
-			this.uniforms = [];
-			U_names.forEach( (name)=>{
-				this.uniforms[name] = new _Uniform(U_locations[name], uniforms[name]);
-				this.uniforms.push( this.uniforms[name] );
-			} );
-
-			this.start = this.start;
-		}
-
-		// private props
-		//
-
-		
-
-		// private methods
-		//
-
-		function _update_enabledAttribs(shaderObj){
-			// active/desactive l'interpolation en fonction du nombre d'attributes pour 'this' instance de ShaderObject 
-			var firstDisabled = _Attribute.activateds.indexOf(false);
-			var diff = shaderObj.attributes.length - firstDisabled;
-		
-			// (CODE CONTENT : hardcore otpimisation)
-			if(diff < 0)
-				// disable
-				for(let i=0; i>diff; i--){
-					let iAttr = firstDisabled + i - 1;
-					_Attribute.activateds[iAttr] = false;
-					gl.enableVertexAttribArray(iAttr);
-				}
-			else
-				// enable
-				for(let i=0; i<diff; i++){
-					let iAttr = firstDisabled + i;
-					_Attribute.activateds[iAttr] = true;
-					gl.enableVertexAttribArray(iAttr);
-				}
-		}
-	
-		// public methods
-		//
-
-		ShaderObject.prototype.start = function(){
-
-			_update_enabledAttribs(this);
-
-			gl.useProgram(this.prog);
-
-			this.attributes.forEach( (attr)=>{attr.start();} );
-
-			_Uniform.iTexture = 0;
-			this.uniforms.forEach( (unif)=>{unif.start();} );
-
-		}
-	
-		ShaderObject.prototype.tell = function(){
-			console.log(_Attribute.activateds);
-		}
-
-		return ShaderObject;
-	})();
-
-
+	var ShaderObject  = get_ShaderObject_class(gl, shaderLib);
 	this.ShaderObject = ShaderObject;
 
 

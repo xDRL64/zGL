@@ -1,6 +1,7 @@
 var canvasElem = document.getElementById('viewport');
 
 zgl = new zGL(canvasElem);
+zgl2 = new zGL(canvasElem);
 
 zgl.Loader.addToLoading("myFbx", "any", "teapot.fbx");
 zgl.Loader.addToLoading("myImage","img","./TEX64.png");
@@ -62,10 +63,10 @@ var afterLoading = function(){
 	shaderObj.start();
 
 
-	var shaderCodes2 = zgl.Shader.generate_standard({});
-	window.shaderObj2   = new zgl.ShaderObject(shaderCodes2, {_v:3,}, {_m:'mat4'});
+	var shaderCodes2 = zgl2.Shader.generate_standard({});
+	window.shaderObj2   = new zgl2.ShaderObject(shaderCodes2, {_v:3,}, {_m:'mat4'});
 		shaderObj2.attributes._v.data = vBuffer;
-		shaderObj2.uniforms._m.data = math.ColMat_proj(90, zgl.domElem.width/zgl.domElem.height, 0.001, 1000);
+		shaderObj2.uniforms._m.data = math.ColMat_proj(90, zgl2.domElem.width/zgl2.domElem.height, 0.001, 1000);
 	shaderObj2.start();
 
 
