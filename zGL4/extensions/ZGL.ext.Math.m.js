@@ -46,6 +46,13 @@ function zGL_Math_ext (zgl){
 				 0,    0,  -40,   1
 		];
 	};
+	this.mat_trans = function (x,y,z) {
+		return [ 1,    0,    0,   0,
+				 0,    1,    0,   0,
+				 0,    0,    1,   0,
+				 x,    y,    z,   1
+		];
+	};
 
 
 	this.makeRotationX = function( theta ) {
