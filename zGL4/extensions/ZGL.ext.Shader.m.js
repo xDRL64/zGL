@@ -4,8 +4,163 @@ function zGL_Shader_ext (zgl){
 
 
 
+
+	// o.color        : 'rgb', 'rgba'
+	// o.texture      : 'uv', 'env'
+	// o.shading     : 'gouraud', 'phong', 'cell'
+	// o.specular     : 'gouraud', 'phong', 'cell'
+	// l.points       : [ {pos,int,dis,col}, ... ]
+	// l.ambiants     : [ {int,col}, ... ]
+	// l.directionals : [ {int,dir,col}, ... ]
+	// l.hemispheres  : [ {int,dir,cl0,cl1}, ... ]
+	this.generator = {
+
+		standard : function(o={color, texture, shading, specular}, l={points, ambiants, directionals, hemispheres}){
+
+			var defaultPrecision_code = 'precision highp float;';
+
+			var needNormalAttribs = o.texture==='env' || l.points || l.directionals || l.hemispheres;
+
+			if(o.shading === 'gouraud')
+				var lighting = 'perVertex';
+			else if(o.shading==='phong' || o.shading==='cell')
+				var lighting = 'perPixel';
+
+
+			var lightStructs = '';
+
+			if(l.points)
+				lightStructs +=
+					'struct pL {'
+					+ 'vec3 pos;'
+					+ 'vec3 col;'
+					+ 'float int;'
+					+ 'float dis;'
+					+ 'float dec;'
+					'};';
+			
+
+
+			vs = {
+				precision  : '',
+				structs    : '',
+
+				attributes : '',
+				uniforms   : '',
+				varyings   : '',
+
+				main       : '',
+			};
+
+			fs = {
+				precision  : '',
+				structs    : '',
+
+				uniforms   : '',
+				varyings   : '',
+
+				main       : '',
+			};
+
+			// precision
+
+			vs.precision += defaultPrecision_code;
+			fs.precision += defaultPrecision_code;
+
+
+
+
+			// HEAD : VERTEX SHADER
+			// 
+
+			// vs structs
+			if(lighting === 'perVertex')
+				vs.structs += lightStructs;
+
+			// vs attributes
+
+			vs.attributes += 'attribute vec3 _v;';
+
+			if(o.color === 'rgb')
+				vs.attributes += 'attribute vec3 _c;';
+			else if(o.color === 'rgba')
+				vs.attributes += 'attribute vec4 _c;';
+
+			if(o.texture === 'uv')
+				vs.attributes += 'attribute vec3 _u;';
+
+			if(needNormalAttribs)
+				vs.attributes += 'attribute vec3 _n;';
+
+
+			// vs uniforms
+
+			vs.uniforms += 'uniform mat4 _mvp;';
+
+
+
+			if(lighting === 'perVertex'){
+				//if(l.points || l.ambiants || l.directionals || l.hemispheres)
+				if(l.points)
+					vs.uniforms += 'uniform pL _pl['+l.points.length+'];';
+					
+				if(l.ambiants){}
+				if(l.directionals){}
+				if(l.hemispheres){}
+			}
+
+			// vs varyings
+
+			if(lighting === 'perPixel')
+				vs.varyings += 'varying vec4 _n_;';
+			else if(o.texture.match( /^[xyz][xyz]$/g ))
+				vs.varyings += 'varying vec3 _n_;';
+
+			if(o.color || lighting==='perVertex')
+				vs.varyings += 'varying vec4 _c_;';
+
+			if(o.texture === 'uv')
+				vs_varying += 'varying vec2 _u_;';
+			
+			if(o.texture==='env' || lighting === 'perPixel')
+				vs_varying += 'varying vec4 _n_;';
+
+
+
+			// BODY : VERTEX SHADER
+			//
+
+			// init
+
+			var vs_positionPoint = 'vec4 position = vec4(_v, 1.);';
+			var vs_normalVector  = 'vec4 normal = vec4(_n, 0.);';
+
+
+			// lighting
+			var write_plVertexCode = function(s, count){
+				var code = '';
+				for(let i=0; i<count; i++){
+					s.uniforms += 'uniform vec3 _pl'+i+';';
+					s.uniforms += 'uniform float _pl'+i+'int;';
+					s.uniforms += 'uniform float _pl'+i+'dir;';
+					s.uniforms += 'uniform vec3 _pl'+i+'col;';
+				}
+			};
+// 
+
+			// output
+			
+
+
+		},
+
+	};
+
+
+
+
 	// color        : true, false
-	// texture      : 'uv', 'env'
+	// texture      : 'uv', 'env', { 'xx'||'xy'||'xz'  ||  'yy'||'yx'||'yz'  ||'zz'||'zx'||'zy' }
 	// lights       : number
 	// ambiants     : number
 	// directionals : number
@@ -33,7 +188,7 @@ function zGL_Shader_ext (zgl){
 			vs_attributes += 'attribute vec4 _c;';
 			vs_varying    += 'varying vec4 _c_;';
 			vs_out        += '_c_ = _c;';
-
+			//
 			fs_varying    += 'varying vec4 _c_;';
 			fs_color      += '_c_';
 		}
@@ -42,7 +197,7 @@ function zGL_Shader_ext (zgl){
 			vs_attributes += 'attribute vec2 _u;';
 			vs_varying    += 'varying vec2 _u_;';
 			vs_out        += '_u_ = _u;';
-			
+			//
 			fs_uniforms   += 'uniform sampler2D _t;';
 			fs_varying    += 'varying vec2 _u_;';
 
@@ -54,7 +209,7 @@ function zGL_Shader_ext (zgl){
 		if(o.texture.match( /^[xyz][xyz]$/g )){
 			vs_varying    += 'varying vec3 _u_;';
 			vs_out        += '_u_ = _v;';
-			
+			//
 			fs_uniforms   += 'uniform sampler2D _t;';
 			fs_varying    += 'varying vec3 _u_;';
 
@@ -74,7 +229,7 @@ function zGL_Shader_ext (zgl){
 			vs_varying    += 'varying vec4 _n_;';
 			vs_out        += '_v_ = vec4(_v, 1.);';
 			vs_out        += '_n_ = vec4(_n, 0.);';
-			
+			//
 			fs_uniforms   += 'uniform mat4 _mv;';
 			fs_uniforms   += 'uniform sampler2D _t;';
 			fs_varying    += 'varying vec4 _v_;';

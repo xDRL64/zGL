@@ -186,3 +186,64 @@ zGLSL.texGouraud = function(data){
 
 
 
+zGLSL.all = {
+
+	vertex : glsl`
+		#define vCOLOR true
+		#define RGB true
+		#define RGBA true
+
+
+		precision highp float;
+
+		attribute vec3 _v;
+		#ifdef RGBA
+			attribute vec3 _c;
+		attribute vec4 _c;
+		attribute vec3 _u;
+		attribute vec3 _n;
+
+		uniform mat4 _mvp;
+		uniform mat4 _mv;
+		uniform mat4 _m;
+
+		uniform vec3  _pl0;
+		uniform float _pl0int;
+		uniform float _pl0dis;
+		uniform vec3  _pl0col;
+
+		varying vec3 _v_;
+		varying vec4 _c_;
+		varying vec2 _u_;
+		varying vec3 _n_;
+
+		void main(void){
+
+			vec3 rgb  = _c;
+			vec4 rgba = _c;
+
+			_v_ = vec4(_v, 1.);
+			_c_ = color;
+			_n_ = vec4(_n, 0.);
+
+			gl_Position = _mvp * vec4(_v, 1.);
+		}
+	`,
+
+	fragment : glsl`
+		precision highp float;
+		
+		uniform mat4 _mvp;
+		uniform mat4 _mv;
+		uniform mat4 _m;
+
+		varying vec3 _v_;
+		varying vec3 _c_;
+		varying vec3 _u_;
+		varying vec3 _n_;
+
+		void main(void){
+			gl_FragColor = vec4(color.rgb, color.a);
+		}
+	`,
+};

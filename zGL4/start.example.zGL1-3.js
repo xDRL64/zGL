@@ -128,9 +128,9 @@ var afterLoading = function(){
 	var loop = function(){
 		requestAnimationFrame(loop);
 
-		//modelMatPair.data = math.mul_CM( math.makeRotationX(xRot), math.mat_trans40z() );
+		//modelMatPair.data = math.mul_CM( math.makeRotationX(xRot), math.make_translation(0,0,-40) );
 		let yxRotMat = math.mul_CM( math.makeRotationY(yRot), math.makeRotationX(xRot) );
-		modelMatPair.data = math.mul_CM( math.mat_trans40z(), yxRotMat );
+		modelMatPair.data = math.mul_CM( math.make_translation(0,0,-40), yxRotMat );
 		xRot += 0.005;
 		yRot += 0.005;
 

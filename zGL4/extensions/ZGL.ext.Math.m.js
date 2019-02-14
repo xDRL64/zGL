@@ -32,25 +32,21 @@ function zGL_Math_ext (zgl){
 	
 	
 	this.mat_id = function () {
-		return [ 1,    0,    0,   0,
-				 0,    1,    0,   0,
-				 0,    0,    1,   0,
-				 0,    0,    1,   1
+		return [
+			1,  0,  0,  0,
+			0,  1,  0,  0,
+			0,  0,  1,  0,
+			0,  0,  0,  1
 		];
 	};
 	
-	this.mat_trans40z = function () {
-		return [ 1,    0,    0,   0,
-				 0,    1,    0,   0,
-				 0,    0,    1,   0,
-				 0,    0,  -40,   1
-		];
-	};
-	this.mat_trans = function (x,y,z) {
-		return [ 1,    0,    0,   0,
-				 0,    1,    0,   0,
-				 0,    0,    1,   0,
-				 x,    y,    z,   1
+
+	this.make_translation = function (x,y,z) {
+		return [
+			1,  0,  0,  0,
+			0,  1,  0,  0,
+			0,  0,  1,  0,
+			x,  y,  z,  1
 		];
 	};
 
@@ -58,22 +54,47 @@ function zGL_Math_ext (zgl){
 	this.makeRotationX = function( theta ) {
 		var c = Math.cos( theta ), s = Math.sin( theta );
 		return [
-			1, 0,  0, 0,
-			0, c, -s, 0,
-			0, s,  c, 0,
-			0, 0,  0, 1
+			1,  0,  0,  0,
+			0,  c, -s,  0,
+			0,  s,  c,  0,
+			0,  0,  0,  1
 		];
 	}
 	this.makeRotationY = function( theta ) {
 		var c = Math.cos( theta ), s = Math.sin( theta );
 		return [
-			c, 0, -s, 0,
-			0, 1,  0, 0,
-			s, 0,  c, 0,
-			0, 0,  0, 1
+			c,  0, -s,  0,
+			0,  1,  0,  0,
+			s,  0,  c,  0,
+			0,  0,  0,  1
 		];
 	}
+	this.makeRotationZ = function( theta ) {
+		var c = Math.cos( theta ), s = Math.sin( theta );
+		return [
+			c, -s,  0,  0,
+			s,  c,  0,  0,
+			0,  0,  1,  0,
+			0,  0,  0,  1
+		];
+	}
+
+	this.make_rotation = function( x, y, z ) {
+		var xRot = this.makeRotationX(x);
+		var yRot = this.makeRotationY(y);
+		var zRot = this.makeRotationZ(z);
+		return this.mul_CM( zRot, this.mul_CM(yRot, xRot) );
+	}
 	
+	this.make_scale = function (x, y, z) {
+		return [
+			x,  0,  0,  0,
+			0,  y,  0,  0,
+			0,  0,  z,  0,
+			0,  0,  0,  1
+		];
+	};
+
 	this.ColMat_proj = function (fov, aspect, near, far)
 	{
 		var rad = this.degToRad(fov*0.5);
