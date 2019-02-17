@@ -19,16 +19,23 @@ var zGL_Uniform_Class = (function(gl){
 		// private props
 		//
 		
-		var _GL = _list[dataInfo];
-		var args = [];
-		args.push(location);
-		if(dataInfo.includes("mat"))
-			args.push(false);
+		// public
+
+		// use like this : glSendMethod( uniformData )
+		this.glSendMethod = (function(){
+			var _GL = _list[dataInfo];
+			var args = [];
+			args.push(location);
+			if(dataInfo.includes("mat"))
+				args.push(false);
+			return _GL.method.bind(gl, ...args);
+		})();
 		
 			
-		
-		this.start         = _start.bind(this, _GL, args);
-		this.externalStart = _externalStart.bind(this, _GL, args);
+		this.start         = this.start;
+		this.externalStart = this.externalStart;
+		//this._old_start_   = _start.bind(this, _GL, args);
+		//this.externalStart = _externalStart.bind(this, _GL, args);
 	}
 
 	// heritage
@@ -41,20 +48,25 @@ var zGL_Uniform_Class = (function(gl){
 	// public methods
 	//
 
-
+	_Uniform.prototype.start = function(){
+		this.glSendMethod( this.data );
+	};
+	_Uniform.prototype.externalStart = function(data){
+		this.glSendMethod( data );
+	};
 
 	// private methods
 	//
 
-	function _start(_GL, args){
+	/* function _start(_GL, args){
 		args[_GL.iLastArg] = this.data;
 		_GL.method.apply(gl, args);
-	}
+	} */
 
-	function _externalStart(_GL, args, data){
+	/* function _externalStart(_GL, args, data){
 		args[_GL.iLastArg] = data;
 		_GL.method.apply(gl, args);
-	}
+	} */
 	
 	function _connect_texture(location, data){
 		var iTex = _Uniform.iTexture;
@@ -65,14 +77,7 @@ var zGL_Uniform_Class = (function(gl){
 		gl.uniform1i(location, iTex);
 	}
 
-	function _connect_object(data){
-		data = {
-			name : { location:null, type:''},
-			name : { location:null, type:''},
-			name : { location:null, type:''},
-		};
 
-	}
 
 
 	window.unifs = ({
@@ -115,24 +120,20 @@ var zGL_Uniform_Class = (function(gl){
 
 	// private satic props
 	//
-	/* var _fArray = data=>new Float32Array(data);
-	var _iArray = data=>new Int32Array(data);
-	var _1Value = data=>data; */
+
 	var _list = {
-		'float'     : { method:gl.uniform1f,        iLastArg:1/* , format:_1Value */ },
-		'int'       : { method:gl.uniform1i,        iLastArg:1/* , format:_1Value */ },
-		'vec2'      : { method:gl.uniform2fv,       iLastArg:1/* , format:_fArray */ },
-		'ivec2'     : { method:gl.uniform2iv,       iLastArg:1/* , format:_iArray */ },
-		'vec3'      : { method:gl.uniform3fv,       iLastArg:1/* , format:_fArray */ },
-		'ivec3'     : { method:gl.uniform3iv,       iLastArg:1/* , format:_iArray */ },
-		'vec4'      : { method:gl.uniform4fv,       iLastArg:1/* , format:_fArray */ },
-		'ivec4'     : { method:gl.uniform4iv,       iLastArg:1/* , format:_iArray */ },
-		'mat2'      : { method:gl.uniformMatrix2fv, iLastArg:2/* , format:_fArray */ },
-		'mat3'      : { method:gl.uniformMatrix3fv, iLastArg:2/* , format:_fArray */ },
-		'mat4'      : { method:gl.uniformMatrix4fv, iLastArg:2/* , format:_fArray */ },
-		'sampler2D' : { method:_connect_texture,    iLastArg:1/* , format:_1Value */ },
-		
-		//'object'    : { method:_connect_object,     iLastArg:0/* , format:_1Value */ },
+		'float'     : { method:gl.uniform1f,        iLastArg:1 },
+		'int'       : { method:gl.uniform1i,        iLastArg:1 },
+		'vec2'      : { method:gl.uniform2fv,       iLastArg:1 },
+		'ivec2'     : { method:gl.uniform2iv,       iLastArg:1 },
+		'vec3'      : { method:gl.uniform3fv,       iLastArg:1 },
+		'ivec3'     : { method:gl.uniform3iv,       iLastArg:1 },
+		'vec4'      : { method:gl.uniform4fv,       iLastArg:1 },
+		'ivec4'     : { method:gl.uniform4iv,       iLastArg:1 },
+		'mat2'      : { method:gl.uniformMatrix2fv, iLastArg:2 },
+		'mat3'      : { method:gl.uniformMatrix3fv, iLastArg:2 },
+		'mat4'      : { method:gl.uniformMatrix4fv, iLastArg:2 },
+		'sampler2D' : { method:_connect_texture,    iLastArg:1 },
 	}
 	
 
