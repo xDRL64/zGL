@@ -206,7 +206,7 @@ function zGL_Shader_ext (zgl){
 
 		// xx, xy, xz,  yy, yx, yz,  zz, zx, zy
 		// (should need : a wrapped XY texture)
-		if(o.texture.match( /^[xyz][xyz]$/g )){
+		if(o.texture && o.texture.match( /^[xyz][xyz]$/g )){
 			vs_varying    += 'varying vec3 _u_;';
 			vs_out        += '_u_ = _v;';
 			//

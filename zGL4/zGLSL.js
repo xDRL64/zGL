@@ -188,7 +188,7 @@ zGLSL.texGouraud = function(data){
 
 zGLSL.all = {
 
-	vertex : glsl`
+	vertex : `
 		#define vCOLOR true
 		#define RGB true
 		#define RGBA true
@@ -230,7 +230,7 @@ zGLSL.all = {
 		}
 	`,
 
-	fragment : glsl`
+	fragment : `
 		precision highp float;
 		
 		uniform mat4 _mvp;
@@ -244,6 +244,35 @@ zGLSL.all = {
 
 		void main(void){
 			gl_FragColor = vec4(color.rgb, color.a);
+		}
+	`,
+};
+
+zGLSL.litStructTest = {
+
+	vertex : `
+		precision highp float;
+		attribute vec3 _v;
+		uniform mat4 _mvp;
+		struct pL {
+			vec3 pos;
+			vec3 col;
+			float dis;
+			float dec;
+		};
+		uniform pL _pl[2];
+		void main(void){
+			float ppp = _pl[0].col.r * _pl[1].col.r * 0. + 1.;
+			gl_Position = _mvp * vec4(_v, ppp);
+		}
+	`
+	,
+
+	fragment : `
+		precision highp float;
+		void main(void){
+			vec4 color = vec4(1);
+			gl_FragColor = vec4(1., 0., 0., color.a);
 		}
 	`,
 };

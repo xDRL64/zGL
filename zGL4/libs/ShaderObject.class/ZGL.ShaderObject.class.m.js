@@ -1,9 +1,14 @@
 "use strict";
 
+
+
 import { zGL_Attribute_Class as get_Attribute_class } from './ZGL._Attribute.class.m.js';
 import { zGL_Uniform_Class   as get_Uniform_class }   from './ZGL._Uniform.class.m.js';
+
+import { insert_prototype }   from '../../dependences/TinyTools/ObjectPropertiesLib.m.js';
+
 	
-	
+
 
 // ShaderObject Using :
 
@@ -60,16 +65,18 @@ var zGL_ShaderObject_Class = (function(gl, shaderLib){
 		var A_locations = get_attributes(this.prog, A_names);
 		var U_locations = get_uniforms(this.prog, U_names);
 
-		this.attributes = [];
+		this.attributes = {};
+		insert_prototype( this.attributes, {array:[]} );
 		A_names.forEach( (name)=>{
 			this.attributes[name] = new _Attribute(A_locations[name], attributes[name]);
-			this.attributes.push( this.attributes[name] );
+			this.attributes.array.push( this.attributes[name] );
 		} );
 
-		this.uniforms = [];
+		this.uniforms = {};
+		insert_prototype( this.uniforms, {array:[]} );
 		U_names.forEach( (name)=>{
 			this.uniforms[name] = new _Uniform(U_locations[name], uniforms[name]);
-			this.uniforms.push( this.uniforms[name] );
+			this.uniforms.array.push( this.uniforms[name] );
 		} );
 
 		this.start = this.start;
@@ -88,7 +95,7 @@ var zGL_ShaderObject_Class = (function(gl, shaderLib){
 	function _update_enabledAttribs(shaderObj){
 		// active/desactive l'interpolation en fonction du nombre d'attributes pour 'this' instance de ShaderObject 
 		var firstDisabled = _Attribute.activateds.indexOf(false);
-		var diff = shaderObj.attributes.length - firstDisabled;
+		var diff = shaderObj.attributes.array.length - firstDisabled;
 	
 		// (CODE CONTENT : hardcore otpimisation)
 		if(diff < 0)
@@ -116,10 +123,10 @@ var zGL_ShaderObject_Class = (function(gl, shaderLib){
 
 		gl.useProgram(this.prog);
 
-		this.attributes.forEach( (attr)=>{attr.start();} );
+		this.attributes.array.forEach( (attr)=>{attr.start();} );
 
 		_Uniform.iTexture = 0;
-		this.uniforms.forEach( (unif)=>{unif.start();} );
+		this.uniforms.array.forEach( (unif)=>{unif.start();} );
 
 	}
 

@@ -1,7 +1,9 @@
+"use strict";
+
 var canvasElem = document.getElementById('viewport');
 
-zgl = new zGL(canvasElem);
-zgl2 = new zGL(canvasElem);
+var zgl = new zGL(canvasElem);
+var zgl2 = new zGL(canvasElem);
 
 zgl.Loader.addToLoading("myFbx", "any", "teapot.fbx");
 zgl.Loader.addToLoading("myImage","img","./TEX64.png");
@@ -9,11 +11,93 @@ zgl.Loader.addToLoading("myImage","img","./TEX64.png");
 
 
 
+function deepClone_object(object){
+	return JSON.parse( JSON.stringify(object) );
+}
 
 
 
+var uniformsParser = (function(){
 
+	var output = null;
+	var objectPropsToOutputIndexes_tableObject = null;
 
+	var pathChain = null;
+	var indexChain = null;
+	var type = '';
+
+	return {
+	
+		parse : function(uniformsObj){
+			output = [];
+			objectPropsToOutputIndexes_tableObject = JSON.parse( JSON.stringify(uniformsObj) );
+
+			pathChain = [];
+			indexChain = [];
+			type = '';
+			this.lookup(uniformsObj);
+			return { output:output, };
+		},
+	
+	
+		lookup : function(input){
+
+			for (const name in input) {
+				
+				pathChain.push( name );
+				indexChain.push( -1 );
+				type = '';
+
+				let prop = input[name];
+
+				if(prop instanceof Array){
+					
+					type = prop[0];
+					let len = prop[1];
+
+					if(typeof type === 'string')
+						for(let i=0; i<len; i++){
+							indexChain[ indexChain.length-1 ] = i;
+							this.addTo_output();
+						}
+					else if(typeof type === 'object'){
+						for(let i=0; i<len; i++){
+							indexChain[ indexChain.length-1 ] = i;
+							this.lookup(prop[0]);
+						}
+					}
+
+				}else if(typeof prop === 'object')
+					this.lookup(prop);
+				else if(typeof prop === 'string'){
+					type = prop;
+					this.addTo_output();
+				}
+
+				pathChain.pop();
+				indexChain.pop();
+
+			}
+
+		},
+
+		addTo_output : function(){
+			var o = '';
+			for(let i=0; i<pathChain.length; i++)			
+				o += pathChain[i]
+				  +  (indexChain[i]===-1? '' : '['+indexChain[i]+']')
+				  +  (i<pathChain.length-1? '.' : '')
+				;
+			output[o] = type;
+			//output.push(  );
+		},
+
+		update_objectPropsToOutputIndexes_tableObject : function(){
+
+		},
+	
+	};
+})();
 
 
 
@@ -30,12 +114,15 @@ var afterLoading = function(){
 		this.pos = {x:0, y:0, z:0};
 		this.rot = {x:0, y:0, z:0};
 		this.sca = {x:1, y:1, z:1};
-	
+
 		this.modelMatrix = null;
 	
-		this.material = new ShaderMaterialProto(this);
-	
-		this.shaderData = {};
+		this.v = null;
+		this.c = null;
+		this.u = null;
+		this.n = null;
+
+		this.shaders = [];
 	}
 	Obj3Dproto.prototype.update_modelMatrix = function(){
 		var posMat = math.make_translation(this.pos.x, this.pos.y, this.pos.z);
@@ -48,25 +135,79 @@ var afterLoading = function(){
 		var rotMat = math.make_rotation(-this.rot.x, -this.rot.y, -this.rot.z);
 		return math.mul_CM(posMat, rotMat);
 	};
-	
-	
-	
-	
-	function ShaderMaterialProto(Obj3Dproto){
-		this.obj3D = Obj3Dproto;
-	
-		this.shader = null;
-		this.shaderBoundRefs = [];
-	
-	}
-	ShaderMaterialProto.prototype.bind_refs = function(shaderRefName, obj3DrefName){
-		this.shaderBoundRefs.push(
+	Obj3Dproto.prototype.add_shader = function(shaderObject, linkRefs){
+		var obj3D = this;
+		var linkRefGetters = {};
+		for(let name in linkRefs)
+			Object.defineProperty(linkRefGetters, name, {
+					get :  eval( '(function(){ return obj3D.'+linkRefs[name]+';})' ),
+					enumerable : true,
+			} );
+		this.shaders.push(
 			{
-				shaderSide : shaderRefName,
-				obj3Dside  : obj3DrefName
+				obj      : shaderObject,
+				//linkRefs : linkRefs
+				linkRefs : linkRefGetters
 			}
 		);
 	};
+	Obj3Dproto.prototype.smartAdd_shader = function(shaderObject, linkRefs){
+		var obj3D = this;
+		var linkRefGetters = {};
+		var uniformNames = Object.keys(shaderObject.uniforms);
+		for(let name in linkRefs){
+
+			let foundArray = name.indexOf('[]');
+			let foundObject = name.indexOf('.');
+			let foundPointer = foundArray!==-1? foundArray : foundObject;
+
+			if( foundPointer !== -1 ){
+				let prefix = name.substr(0, foundPointer);
+				uniformNames.forEach( function(U_name){
+					let uNameInfo = U_name.match('^'+prefix+'(.*)');
+					if(uNameInfo){
+						let propName = linkRefs[name] + uNameInfo[1];
+						Object.defineProperty(linkRefGetters, U_name, {
+							get :  eval( '(function(){ return obj3D.'+propName+';})' ),
+							enumerable : true,
+						} );  
+					}
+				} );
+			//}else if( name.includes('.') !== -1 ){
+
+			}else{
+				Object.defineProperty(linkRefGetters, name, {
+						get :  eval( '(function(){ return obj3D.'+linkRefs[name]+';})' ),
+						enumerable : true,
+				} );
+			}
+		}
+		this.shaders.push(
+			{
+				obj      : shaderObject,
+				linkRefs : linkRefGetters
+			}
+		);
+	};
+	Obj3Dproto.prototype.updateShaderObject_data = function(iShader=0, start=false){
+		var shader = this.shaders[iShader];
+		var linkRefs = shader.linkRefs;
+		var shaderPropNames = Object.keys(linkRefs);
+		for(let name of shaderPropNames){
+			let shaderInput = shader.obj.attributes[name] || shader.obj.uniforms[name];
+			let obj3DpropName = linkRefs[name];
+			//shaderInput.data = this[obj3DpropName];
+			shaderInput.data = obj3DpropName;
+		}
+		
+		if(start) shader.obj.start();
+	};
+	
+	
+	
+	
+
+
 
 
 
@@ -146,6 +287,7 @@ var afterLoading = function(){
 
 	var shaderCodes2 = zgl2.Shader.generate_standard({texture:'env'});
 	shaderCodes2.debug();
+	//window.shaderObj2 = new zgl2.ShaderObject(shaderCodes2, {_v:3, _n:3}, {_mvp:'mat4', _mv:'mat4', _t:'sampler2D', _pl:'object'});
 	window.shaderObj2 = new zgl2.ShaderObject(shaderCodes2, {_v:3, _n:3}, {_mvp:'mat4', _mv:'mat4', _t:'sampler2D'});
 		shaderObj2.attributes._v.data = vBuffer;
 		shaderObj2.attributes._n.data = nBuffer;
@@ -155,34 +297,68 @@ var afterLoading = function(){
 	shaderObj2.start();
 
 
+
+	var shaderCodes3 = zgl2.Shader.generate_standard({});
+	shaderCodes3.debug();
+	window.shaderObj3 = new zgl2.ShaderObject(shaderCodes3, {_v:3}, {_mvp:'mat4'});
+
+
+
+	function create_light(pos, col, dis, dec){ this.pos=pos; this.col=col; this.dis=dis; this.dec=dec; }
+
+	var pLights = [
+		new create_light( new Float32Array([1,2,3]), new Float32Array([4,5,6]), 7, 8 ),
+		new create_light( new Float32Array([11,22,33]), new Float32Array([44,55,66]), 77, 88 )
+	];
+	var allUniformAccessNames = uniformsParser.parse( { _mvp:'mat4', _pl:[{pos:'vec3',col:'vec3',dis:'float',dec:'float'},2] } );
+	window.shaderObj4 = new zgl2.ShaderObject(zGLSL.litStructTest, {_v:3}, allUniformAccessNames.output);
+	
+	
+	var scene = {
+		lights : {
+			points : pLights
+		}
+	}
+
+	
+
 	var envTeaPot = new Obj3Dproto();
 
-	envTeaPot.material.shader = shaderObj2;
-	envTeaPot.shaderData.vertices = vBuffer;
-	envTeaPot.shaderData.colors   = cBuffer;
-	envTeaPot.shaderData.uvs      = uBuffer;
-	envTeaPot.shaderData.normals  = nBuffer;
-	envTeaPot.shaderData.texture  = texture;
-	envTeaPot.shaderData.pMat     = projectionMatrix;
-	Object.defineProperty(envTeaPot.shaderData, 'vMat', { get:function(){
+	//envTeaPot.material.shader = shaderObj3;
+	envTeaPot.v = vBuffer;
+	envTeaPot.c = cBuffer;
+	envTeaPot.u = uBuffer;
+	envTeaPot.n = nBuffer;
+	envTeaPot.tex = texture;
+	envTeaPot.pMat = projectionMatrix;
+	Object.defineProperty(envTeaPot, 'vMat', { get:function(){
 		return camera.viewMatrix
 	} });
-	Object.defineProperty(envTeaPot.shaderData, 'mvMat', { get:function(){
+	Object.defineProperty(envTeaPot, 'mvMat', { get:function(){
 		envTeaPot.update_modelMatrix();
 		return math.mul_CM(this.vMat, envTeaPot.modelMatrix);
 	} });
-	Object.defineProperty(envTeaPot.shaderData, 'mvpMat', { get:function(){
+	Object.defineProperty(envTeaPot, 'mvpMat', { get:function(){
 		return math.mul_CM(this.pMat, this.mvMat);
 	} });
+	envTeaPot.scene = scene;
 	
-	//envTeaPot.material.bind_refs({_v:'vertices', _n:'normals', _mvp:'mvpMat', _mv:'mvMat', _t:'texture'})
-	envTeaPot.material.bind_refs('_v',   'vertices');
-	envTeaPot.material.bind_refs('_n',   'normals');
-	envTeaPot.material.bind_refs('_mvp', 'mvpMat');
-	envTeaPot.material.bind_refs('_mv',  'mvMat');
-	envTeaPot.material.bind_refs('_t',  'texture');
+	envTeaPot.add_shader(shaderObj2, {_v:'v', _n:'n', _mvp:'mvpMat', _mv:'mvMat', _t:'tex'});
+	envTeaPot.add_shader(shaderObj3, {_v:'v', _mvp:'mvpMat'});
+	
+	envTeaPot.smartAdd_shader(shaderObj4, {_v:'v', _mvp:'mvpMat', '_pl[]':'scene.lights.points'} );
+
+
 
 	window.envTeaPot = envTeaPot;
+
+	envTeaPot.pos.x = 20;
+	envTeaPot.pos.z = -30;
+
+
+
+
+
 
 
 
@@ -217,6 +393,25 @@ var afterLoading = function(){
 		let modelMatrix;
 		let mv;
 		let mvp;
+
+
+
+
+
+
+		// Obj3D proto test
+		envTeaPot.rot.x = xRot;
+		envTeaPot.rot.y = yRot;
+		envTeaPot.updateShaderObject_data(2, true);
+		gl.drawArrays(gl.TRIANGLES, 0, 12096);
+ 
+
+
+
+
+
+
+
 /* 
 		modelMatrix = math.mul_CM( math.make_translation(20,0,-50), yxRotMat );
 		mvp = math.mul_CM(projMat, modelMatrix);

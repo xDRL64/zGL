@@ -13,8 +13,11 @@ function HtmlSliderObject(o={id, name, min, max, step, value, pxWidth, editDispl
 	rangeInput.value       = o.value   || 0;
 	rangeInput.style.width = o.pxWidth || '';
 	rangeInput.oninput = function(){
-		numberInput.value = this.valueAsNumber;
-		changed(this.value);
+		var val = this.valueAsNumber
+		if( Number.isFinite(val) ){
+			numberInput.value = val;
+			changed(val);
+		}
 	}
 
 	var label = document.createElement('LABEL');
@@ -27,11 +30,15 @@ function HtmlSliderObject(o={id, name, min, max, step, value, pxWidth, editDispl
 	numberInput.type = 'number';
 	numberInput.style.width = '100px';
 	numberInput.value = o.value || 0;
+	numberInput.required = true;
 	numberInput.lang = 'en-US';
-	numberInput.step = o.step || 1;
+	numberInput.step = 'any';
 	numberInput.oninput = function(){
-		rangeInput.value = this.valueAsNumber;
-		changed(this.value);
+		var val = this.valueAsNumber
+		if( Number.isFinite(val) ){
+			rangeInput.value = val;
+			changed(val);
+		}
 	};
 
 	o.editDisplay = o.editDisplay===false? false : true;

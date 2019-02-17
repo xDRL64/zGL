@@ -47,7 +47,8 @@ var zGL_Uniform_Class = (function(gl){
 
 	function _start(_GL, args){
 		
-		args[_GL.iLastArg] = _GL.format(this.data);
+		//args[_GL.iLastArg] = _GL.format(this.data);
+		args[_GL.iLastArg] = this.data;
 		_GL.method.apply(gl, args);
 	}
 	
@@ -60,6 +61,49 @@ var zGL_Uniform_Class = (function(gl){
 		gl.uniform1i(location, iTex);
 	}
 
+	function _connect_object(data){
+		data = {
+			name : { location:null, type:''},
+			name : { location:null, type:''},
+			name : { location:null, type:''},
+		};
+
+	}
+
+
+	window.unifs = ({
+
+		_matArr : ['mat4', 3],
+
+		_pl : {
+			prop_0 : 'vec3',
+			prop_1 : {
+				prop_0 : 'vec3',
+				prop_1 : 'vec3'
+			},
+
+		},
+
+		_al : [
+
+			{
+				prop_0 : 'vec3',
+				prop_1 : {
+					prop_0 : 'vec3',
+					prop_1 : 'vec3',
+					prop_2 : ['mat4', 3],
+				},
+
+			},
+
+			3
+
+		]
+
+	});
+
+
+
 	// public satic props
 	//
 	_Uniform.iTexture = 0;
@@ -67,22 +111,24 @@ var zGL_Uniform_Class = (function(gl){
 
 	// private satic props
 	//
-	var _fArray = data=>new Float32Array(data);
+	/* var _fArray = data=>new Float32Array(data);
 	var _iArray = data=>new Int32Array(data);
-	var _1Value = data=>data;
+	var _1Value = data=>data; */
 	var _list = {
-		'float'     : { method:gl.uniform1f,        iLastArg:1, format:_1Value },
-		'int'       : { method:gl.uniform1i,        iLastArg:1, format:_1Value },
-		'vec2'      : { method:gl.uniform2fv,       iLastArg:1, format:_fArray },
-		'ivec2'     : { method:gl.uniform2iv,       iLastArg:1, format:_iArray },
-		'vec3'      : { method:gl.uniform3fv,       iLastArg:1, format:_fArray },
-		'ivec3'     : { method:gl.uniform3iv,       iLastArg:1, format:_iArray },
-		'vec4'      : { method:gl.uniform4fv,       iLastArg:1, format:_fArray },
-		'ivec4'     : { method:gl.uniform4iv,       iLastArg:1, format:_iArray },
-		'mat2'      : { method:gl.uniformMatrix2fv, iLastArg:2, format:_fArray },
-		'mat3'      : { method:gl.uniformMatrix3fv, iLastArg:2, format:_fArray },
-		'mat4'      : { method:gl.uniformMatrix4fv, iLastArg:2, format:_fArray },
-		'sampler2D' : { method:_connect_texture,    iLastArg:1, format:_1Value }
+		'float'     : { method:gl.uniform1f,        iLastArg:1/* , format:_1Value */ },
+		'int'       : { method:gl.uniform1i,        iLastArg:1/* , format:_1Value */ },
+		'vec2'      : { method:gl.uniform2fv,       iLastArg:1/* , format:_fArray */ },
+		'ivec2'     : { method:gl.uniform2iv,       iLastArg:1/* , format:_iArray */ },
+		'vec3'      : { method:gl.uniform3fv,       iLastArg:1/* , format:_fArray */ },
+		'ivec3'     : { method:gl.uniform3iv,       iLastArg:1/* , format:_iArray */ },
+		'vec4'      : { method:gl.uniform4fv,       iLastArg:1/* , format:_fArray */ },
+		'ivec4'     : { method:gl.uniform4iv,       iLastArg:1/* , format:_iArray */ },
+		'mat2'      : { method:gl.uniformMatrix2fv, iLastArg:2/* , format:_fArray */ },
+		'mat3'      : { method:gl.uniformMatrix3fv, iLastArg:2/* , format:_fArray */ },
+		'mat4'      : { method:gl.uniformMatrix4fv, iLastArg:2/* , format:_fArray */ },
+		'sampler2D' : { method:_connect_texture,    iLastArg:1/* , format:_1Value */ },
+		
+		//'object'    : { method:_connect_object,     iLastArg:0/* , format:_1Value */ },
 	}
 	
 
