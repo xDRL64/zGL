@@ -185,69 +185,6 @@ zGLSL.texGouraud = function(data){
 
 
 
-
-zGLSL.all = {
-
-	vertex : `
-		#define vCOLOR true
-		#define RGB true
-		#define RGBA true
-
-
-		precision highp float;
-
-		attribute vec3 _v;
-		#ifdef RGBA
-			attribute vec3 _c;
-		attribute vec4 _c;
-		attribute vec3 _u;
-		attribute vec3 _n;
-
-		uniform mat4 _mvp;
-		uniform mat4 _mv;
-		uniform mat4 _m;
-
-		uniform vec3  _pl0;
-		uniform float _pl0int;
-		uniform float _pl0dis;
-		uniform vec3  _pl0col;
-
-		varying vec3 _v_;
-		varying vec4 _c_;
-		varying vec2 _u_;
-		varying vec3 _n_;
-
-		void main(void){
-
-			vec3 rgb  = _c;
-			vec4 rgba = _c;
-
-			_v_ = vec4(_v, 1.);
-			_c_ = color;
-			_n_ = vec4(_n, 0.);
-
-			gl_Position = _mvp * vec4(_v, 1.);
-		}
-	`,
-
-	fragment : `
-		precision highp float;
-		
-		uniform mat4 _mvp;
-		uniform mat4 _mv;
-		uniform mat4 _m;
-
-		varying vec3 _v_;
-		varying vec3 _c_;
-		varying vec3 _u_;
-		varying vec3 _n_;
-
-		void main(void){
-			gl_FragColor = vec4(color.rgb, color.a);
-		}
-	`,
-};
-
 zGLSL.litStructTest = {
 
 	vertex : `
@@ -277,6 +214,59 @@ zGLSL.litStructTest = {
 			vec4 color = vec4(1);
 			//gl_FragColor = vec4(1., 0., 0., color.a);
 			gl_FragColor = vec4(plColor);
+		}
+	`,
+};
+
+
+zGLSL.fakeAll_2lights = {
+
+	vertex : `
+		precision highp float;
+		attribute vec3 _v;
+		attribute vec3 _c;
+		attribute vec2 _u;
+		attribute vec3 _n;
+		uniform mat4 _M;
+		uniform mat4 _V;
+		uniform mat4 _P;
+		uniform mat4 _MV;
+		uniform mat4 _MVP;
+		uniform sampler2D _t;
+		struct pL {
+			vec3 pos;
+			vec3 col;
+			float dis;
+			float dec;
+		};
+		uniform pL _pl[2];
+		varying vec4 plColor;
+		varying vec2 _u_;
+		varying float lambert;
+		void main(void){
+			mat4 m4 = _M + _V + _P + _MV;
+			vec3 v3 = _c + _n + _pl[0].col + _pl[1].col + texture2D(_t, _u).rgb;
+			_u_ = _u;
+			lambert = dot( normalize(vec3(0.,-1.,0.)), normalize(_M*vec4(_n.xyz,0.)).xyz );
+			//lambert = clamp(lambert, 0.1, 1.);
+			if(lambert > 0.)
+				plColor = vec4(0.,0.,1., 1.);
+			else
+				plColor = vec4(0.,1.,0., 1.);
+
+			gl_Position = _MVP * vec4(_v, 1.);
+		}
+	`
+	,
+
+	fragment : `
+		precision highp float;
+		varying vec4 plColor;
+		varying float lambert;
+		void main(void){
+			vec4 color = vec4(1);
+			//gl_FragColor = vec4(vec3(1., 1., 1.)*lambert, color.a);
+			gl_FragColor = vec4(plColor.rgb*1., color.a);
 		}
 	`,
 };
