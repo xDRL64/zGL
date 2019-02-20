@@ -1,3 +1,5 @@
+"use strict";
+
 var get_zedGL_shaderUsing_examples = function(zgl, uniformInfoMaker, Obj3Dproto, geometry, texture){
 	
 	// 3D matos
@@ -55,6 +57,7 @@ var get_zedGL_shaderUsing_examples = function(zgl, uniformInfoMaker, Obj3Dproto,
 
 	return {
 
+		// hard code
 		onlyShaderObject : {
 			init : function(){
 				
@@ -93,6 +96,7 @@ var get_zedGL_shaderUsing_examples = function(zgl, uniformInfoMaker, Obj3Dproto,
 			},
 		},
 		
+		// obj3D add/update
 		obj3D_use_shaderObject : {
 			init : function(){
 				this.shaderIndex = obj3D.shaders.length;
@@ -124,6 +128,45 @@ var get_zedGL_shaderUsing_examples = function(zgl, uniformInfoMaker, Obj3Dproto,
 				obj3D.rot.x = xRot;
 				obj3D.rot.y = yRot;
 				obj3D.update_shaderData(this.shaderIndex);
+				gl.drawArrays(gl.TRIANGLES, 0, 12096);
+			},
+		},
+
+		// obj3D smartAdd/update
+		obj3D_smartUse_shaderObject : {
+			init : function(){
+				this.shaderIndex = obj3D.shaders.length;
+				obj3D.smartAdd_shader(shaderObj,
+					{
+						_v:'v', _c:'c', _u:'u', _n:'n',
+						_t:'t', _M:'M', _V:'V', _P:'P', _MV:'MV', _MVP:'MVP',
+						'_pl[]':'scene.lights.points'
+					}
+				);
+			},
+			draw : function(xRot, yRot, zRot){
+				obj3D.pos = {x:-20,y:-20,z:-30};
+				obj3D.rot.x = xRot;
+				obj3D.rot.y = yRot;
+				obj3D.update_shaderData(this.shaderIndex);
+				gl.drawArrays(gl.TRIANGLES, 0, 12096);
+			},
+		},
+
+		// obj3D optiSmartAdd/update
+		obj3D_optiSmartUse_shaderObject : {
+			init : function(){
+				this.shaderIndex = obj3D.shaders.length;
+				obj3D.set_shader(shaderObj,
+					{ _v:'v', _c:'c', _u:'u', _n:'n' },
+					{ _t:'t', _M:'M', _V:'V', _P:'P', _MV:'MV', _MVP:'MVP', '_pl[]':'scene.lights.points' }
+				);
+			},
+			draw : function(xRot, yRot, zRot){
+				obj3D.pos = {x:20,y:-20,z:-30};
+				obj3D.rot.x = xRot;
+				obj3D.rot.y = yRot;
+				obj3D.start_shader(this.shaderIndex);
 				gl.drawArrays(gl.TRIANGLES, 0, 12096);
 			},
 		},

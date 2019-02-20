@@ -292,6 +292,8 @@ var afterLoading = function(){
 	);
 	zedGL_shaderUsing_examples.onlyShaderObject.init();
 	zedGL_shaderUsing_examples.obj3D_use_shaderObject.init();
+	zedGL_shaderUsing_examples.obj3D_smartUse_shaderObject.init();
+	zedGL_shaderUsing_examples.obj3D_optiSmartUse_shaderObject.init();
 	
 
 
@@ -321,6 +323,8 @@ var afterLoading = function(){
 
 		zedGL_shaderUsing_examples.onlyShaderObject.draw(xRot, yRot);
 		zedGL_shaderUsing_examples.obj3D_use_shaderObject.draw(xRot, yRot);
+		zedGL_shaderUsing_examples.obj3D_smartUse_shaderObject.draw(xRot, yRot);
+		zedGL_shaderUsing_examples.obj3D_optiSmartUse_shaderObject.draw(xRot, yRot);
 
 
 /* 
