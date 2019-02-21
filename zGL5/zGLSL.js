@@ -265,8 +265,8 @@ zGLSL.fakeAll_2lights = {
 		varying float lambert;
 		void main(void){
 			vec4 color = vec4(1);
-			//gl_FragColor = vec4(vec3(1., 1., 1.)*lambert, color.a);
-			gl_FragColor = vec4(plColor.rgb*1., color.a);
+			gl_FragColor = vec4(vec3(1., 1., 1.)*lambert, color.a);
+			//gl_FragColor = vec4(plColor.rgb*1., color.a);
 		}
 	`,
 };

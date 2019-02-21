@@ -295,7 +295,7 @@ var afterLoading = function(){
 	zedGL_shaderUsing_examples.obj3D_smartUse_shaderObject.init();
 	zedGL_shaderUsing_examples.obj3D_optiSmartUse_shaderObject.init();
 	
-
+	window.zedGL = zedGL_shaderUsing_examples;
 
 
 

@@ -9,12 +9,8 @@ function get_Obj3Dproto_Class(math){
 	
 		this.modelMatrix = null;
 	
-		this.v = null;
-		this.c = null;
-		this.u = null;
-		this.n = null;
-	
 		this.shaders = [];
+		this.shadersResourcesRef = this;
 	}
 	Obj3Dproto.prototype.update_modelMatrix = function(){
 		var posMat = math.make_translation(this.pos.x, this.pos.y, this.pos.z);
@@ -32,11 +28,12 @@ function get_Obj3Dproto_Class(math){
 	
 	
 	Obj3Dproto.prototype.add_shader = function(shaderObject, linkRefs){
-		var obj3D = this;
+		//var obj3D = this;
+		var resources = this.shadersResourcesRef;
 		var linkRefGetters = {};
 		for(let name in linkRefs)
 			Object.defineProperty(linkRefGetters, name, {
-				get :  eval( '(function(){ return obj3D.'+linkRefs[name]+';})' ),
+				get :  eval( '(function(){ return resources'+'.'+linkRefs[name]+';})' ),
 				enumerable : true,
 			} );
 		this.shaders.push(
@@ -62,7 +59,8 @@ function get_Obj3Dproto_Class(math){
 	
 	
 	Obj3Dproto.prototype.smartAdd_shader = function(shaderObject, linkRefs){
-		var obj3D = this;
+		//var obj3D = this;
+		var resources = this.shadersResourcesRef;
 		var linkRefGetters = {};
 		var uniformNames = Object.keys(shaderObject.uniforms);
 		for(let name in linkRefs){
@@ -78,7 +76,7 @@ function get_Obj3Dproto_Class(math){
 					if(uNameInfo){
 						let propName = linkRefs[name] + uNameInfo[1];
 						Object.defineProperty(linkRefGetters, U_name, {
-							get :  eval( '(function(){ return obj3D.'+propName+';})' ),
+							get :  eval( '(function(){ return resources'+'.'+propName+';})' ),
 							enumerable : true,
 						} );  
 					}
@@ -87,7 +85,7 @@ function get_Obj3Dproto_Class(math){
 	
 			}else{
 				Object.defineProperty(linkRefGetters, name, {
-						get :  eval( '(function(){ return obj3D.'+linkRefs[name]+';})' ),
+						get :  eval( '(function(){ return resources'+'.'+linkRefs[name]+';})' ),
 						enumerable : true,
 				} );
 			}
@@ -117,8 +115,8 @@ function get_Obj3Dproto_Class(math){
 	
 	
 	Obj3Dproto.prototype.set_shader = function(shaderObject, A_linkRefs, U_linkRefs){
-		var obj3D = this;
-		
+		//var obj3D = this;
+		var resources = this.shadersResourcesRef;
 		// ATTRIBUTES
 		var A_starters = [];
 		for(let A_name in A_linkRefs){
@@ -127,7 +125,8 @@ function get_Obj3Dproto_Class(math){
 			let o = {};
 	
 			Object.defineProperty(o, 'data', {
-				get :  eval( '(function(){ return obj3D.'+A_linkRefs[A_name]+';})' ),
+				//get :  eval( '(function(){ return obj3D.'+A_linkRefs[A_name]+';})' ),
+				get :  eval( '(function(){ return resources'+'.'+A_linkRefs[A_name]+';})' ),
 			} );
 	
 			o.index = attribute.index;
@@ -158,7 +157,8 @@ function get_Obj3Dproto_Class(math){
 						let o = {};
 						let propName = U_linkRefs[U_name] + uNameInfo[1];
 						Object.defineProperty(o, 'data', {
-							get :  eval( '(function(){ return obj3D.'+propName+';})' ),
+							//get :  eval( '(function(){ return obj3D.'+propName+';})' ),
+							get :  eval( '(function(){ return resources'+'.'+propName+';})' ),
 						} );
 						o.index = uniform.index;
 						o.start = function(){
@@ -175,7 +175,8 @@ function get_Obj3Dproto_Class(math){
 				let o = {};
 	
 				Object.defineProperty(o, 'data', {
-					get :  eval( '(function(){ return obj3D.'+U_linkRefs[U_name]+';})' ),
+					//get :  eval( '(function(){ return obj3D.'+U_linkRefs[U_name]+';})' ),
+					get : eval( '(function(){ return resources'+'.'+U_linkRefs[U_name]+';})' ),
 				} );
 	
 				o.index = uniform.index;

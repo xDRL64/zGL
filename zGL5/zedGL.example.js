@@ -33,26 +33,35 @@ var get_zedGL_shaderUsing_examples = function(zgl, uniformInfoMaker, Obj3Dproto,
 
 	// Obj3Dproto Instance :
 	var obj3D = new Obj3Dproto();
+	window.obj3D = obj3D;
 
-	obj3D.v = geometry.v;
-	obj3D.c = geometry.c;
-	obj3D.u = geometry.u;
-	obj3D.n = geometry.n;
-	obj3D.t = texture;
-	obj3D.P = projectionMatrix;
-	Object.defineProperty(obj3D, 'M', { get:function(){
+	var resources = {};
+	obj3D.shadersResources = resources; // default : obj3D.shadersResources = obj3D
+	obj3D.shadersResourcesRef = obj3D.shadersResources;
+
+
+	resources.v = geometry.v;
+	resources.c = geometry.c;
+	resources.u = geometry.u;
+	resources.n = geometry.n;
+	
+	resources.t = texture;
+	resources.P = projectionMatrix;
+	Object.defineProperty(resources, 'M', { get:function(){
 		obj3D.update_modelMatrix();
 		return obj3D.modelMatrix;
 	} });
-	Object.defineProperty(obj3D, 'V', { get:function(){
+	Object.defineProperty(resources, 'V', { get:function(){
 		return camera.viewMatrix
 	} });
-	Object.defineProperty(obj3D, 'MV', { get:function(){
-		return math.mul_CM(this.V, obj3D.M);
+	Object.defineProperty(resources, 'MV', { get:function(){
+		return math.mul_CM(this.V, this.M);
 	} });
-	Object.defineProperty(obj3D, 'MVP', { get:function(){
+	Object.defineProperty(resources, 'MVP', { get:function(){
 		return math.mul_CM(this.P, this.MV);
 	} });
+	resources.scene = scene;
+
 	obj3D.scene = scene;
 
 	return {
